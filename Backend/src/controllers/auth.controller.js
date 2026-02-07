@@ -1,6 +1,8 @@
 import { sendWelcomeEmail } from "../emails/emailHandlers.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.model.js";
+import Agent from "../models/Agent.model.js";
+import Conversation from "../models/Conversation.model.js";
 import bcrypt from "bcryptjs";
 import { ENV } from "../lib/env.js";
 import cloudinary from "../lib/cloudinary.js";
@@ -118,6 +120,59 @@ export const updateProfile = async (req, res) => {
     res.status(200).json(updatedUser);
   } catch (error) {
     console.log("Error in update profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteAccountData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Delete all conversations for this user
+    const conversationsDeleted = await Conversation.deleteMany({ userId });
+
+    // Delete all custom agents created by this user
+    const agentsDeleted = await Agent.deleteMany({ createdBy: userId });
+
+    // Clear JWT cookie
+    res.cookie("jwt", "", { maxAge: 0 });
+
+    res.status(200).json({
+      message: "All account data deleted successfully",
+      deleted: {
+        conversations: conversationsDeleted.deletedCount,
+        agents: agentsDeleted.deletedCount
+      }
+    });
+  } catch (error) {
+    console.error("Error deleting account data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const clearAgentChat = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { agentId } = req.params;
+
+    if (!agentId) {
+      return res.status(400).json({ message: "Agent ID is required" });
+    }
+
+    // Delete conversations with this specific agent
+    const result = await Conversation.deleteMany({ 
+      userId, 
+      agentId 
+    });
+
+    res.status(200).json({
+      message: "Agent chat history cleared successfully",
+      deleted: {
+        conversations: result.deletedCount
+      }
+    });
+  } catch (error) {
+    console.error("Error clearing agent chat:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

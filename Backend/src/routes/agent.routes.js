@@ -5,4 +5,5 @@ import { createAgent, getAgents } from "../controllers/agent.controller.js";
 const router = express.Router();
 router.get("/", isAuth, getAgents);
 router.post("/", isAuth, createAgent);
+// router.post("/", isAuth, dltAgent); dlt agent routes todo
 export default router;
