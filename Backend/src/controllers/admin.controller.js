@@ -33,3 +33,31 @@ export const getAllAgents = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
+
+export const deleteAgent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const agent = await Agent.findOneAndDelete({
+      _id: id,
+      createdBy: req.user._id
+    });
+
+    if (!agent) {
+      return res.status(403).json({
+        message: "You are not allowed to delete this agent"
+      });
+    }
+
+    res.status(200).json({
+      message: "Agent deleted successfully",
+      agentId: id
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to delete agent",
+      error: err.message
+    });
+  }
+};
