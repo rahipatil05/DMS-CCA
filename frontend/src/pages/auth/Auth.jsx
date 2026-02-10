@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, User, Loader2, Sparkles, Shield, Zap } from "lucide-react";
 import { useAuthSubmit } from "./useAuthSubmit";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthPage() {
+  const { login } = useAuth();
   const [mode, setMode] = useState("login");
   const [particles, setParticles] = useState([]);
 
@@ -17,7 +19,7 @@ export default function AuthPage() {
     confirmPassword: ""
   });
 
-  const { submitAuth, loading, error } = useAuthSubmit();
+  const { submitAuth, loading, error } = useAuthSubmit(login);
 
   // Generate floating particles for background animation
   useEffect(() => {
@@ -107,14 +109,10 @@ export default function AuthPage() {
           <Card className="bg-white/5 backdrop-blur-xl border border-white/10
                            transition-all duration-500 
                            hover:bg-white/10 hover:border-blue-500/30
-                           hover:shadow-[0_0_50px_10px_rgba(59,130,246,0.3)]
                            animate-slide-up
                            relative overflow-hidden group">
 
-            {/* Card Glow Effect */}
-            <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            <CardHeader className="relative z-10">
+            <CardHeader className="relative z-10 pt-4 pb-2">
               <Tabs value={mode} onValueChange={setMode} className="w-full">
                 <TabsList className="grid grid-cols-2 bg-white/5 backdrop-blur-sm border border-white/10 p-1 rounded-xl">
                   <TabsTrigger
@@ -143,13 +141,12 @@ export default function AuthPage() {
                 )}
 
                 {mode === "register" && (
-                  <div className="space-y-2 animate-fade-in">
+                  <div className="space-y-2">
                     <label className="text-sm font-semibold text-blue-300 flex items-center gap-2">
                       <User className="w-3.5 h-3.5" />
                       Full Name
                     </label>
                     <div className="relative group">
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors duration-300" />
                         <Input
@@ -174,7 +171,6 @@ export default function AuthPage() {
                     Email
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-linear-to-r from-blue-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors duration-300" />
                       <Input
@@ -199,7 +195,6 @@ export default function AuthPage() {
                     Password
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-linear-to-r from-blue-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors duration-300" />
                       <Input
@@ -219,13 +214,12 @@ export default function AuthPage() {
                 </div>
 
                 {mode === "register" && (
-                  <div className="space-y-2 animate-fade-in">
+                  <div className="space-y-2">
                     <label className="text-sm font-semibold text-blue-300 flex items-center gap-2">
                       <Lock className="w-3.5 h-3.5" />
                       Confirm Password
                     </label>
                     <div className="relative group">
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors duration-300" />
                         <Input
@@ -251,7 +245,6 @@ export default function AuthPage() {
                   className="w-full h-12 mt-6
                              bg-linear-to-r from-blue-500 to-blue-600
                              hover:from-blue-600 hover:to-blue-700
-                             hover:shadow-[0_0_30px_5px_rgba(59,130,246,0.5)]
                              hover:scale-[1.02]
                              active:scale-[0.98]
                              transition-all duration-300

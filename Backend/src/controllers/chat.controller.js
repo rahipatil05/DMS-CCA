@@ -46,21 +46,85 @@ export const sendMessage = async (req, res) => {
     const reply = await getGeminiReply(
       agent.prompt,
       chat.messages,
-      emotionLabel
+      emotionLabel,
+      req.user // Pass full user profile for personalization
     );
+
+    // Intercept and parse Self-Discovery block
+    let discoveries = null;
+    let cleanReply = reply;
+    const discoveryMatch = reply.match(/:::DISCOVERY:::([\s\S]*?):::/);
+
+    if (discoveryMatch) {
+      try {
+        discoveries = JSON.parse(discoveryMatch[1].trim());
+        cleanReply = reply.replace(/:::DISCOVERY:::[\s\S]*?:::/, "").trim();
+      } catch (e) {
+        console.error("Error parsing discovery JSON:", e);
+      }
+    }
 
     // Add assistant message
     chat.messages.push({
       role: "assistant",
-      content: reply,
+      content: cleanReply,
       emotion: emotionLabel
     });
 
     await chat.save();
 
-    res.json({ reply, emotion: emotionData });
+    res.json({ reply: cleanReply, emotion: emotionData, discoveries });
   } catch (error) {
     console.error("Error sending message:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+export const getConversation = async (req, res) => {
+  try {
+    const { agentId } = req.params;
+
+    if (!agentId) {
+      return res.status(400).json({ message: "Agent ID is required" });
+    }
+
+    const chat = await Chat.findOne({
+      userId: req.user._id,
+      agentId
+    });
+
+    if (!chat) {
+      return res.json({ messages: [] });
+    }
+
+    res.json(chat);
+  } catch (error) {
+    console.error("Error getting conversation:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+export const clearChat = async (req, res) => {
+  try {
+    const { agentId } = req.params;
+
+    if (!agentId) {
+      return res.status(400).json({ message: "Agent ID is required" });
+    }
+
+    const chat = await Chat.findOne({
+      userId: req.user._id,
+      agentId
+    });
+
+    if (chat) {
+      chat.messages = [];
+      await chat.save();
+    }
+
+    res.json({ message: "Chat cleared successfully" });
+  } catch (error) {
+    console.error("Error clearing chat:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };

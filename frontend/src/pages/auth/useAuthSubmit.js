@@ -1,8 +1,9 @@
 // hooks/useAuthSubmit.js
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-export function useAuthSubmit() {
+export function useAuthSubmit(login) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -64,13 +65,40 @@ export function useAuthSubmit() {
         throw new Error(data.message || "Authentication failed");
       }
 
-      // Navigate after successful login/signup
+      // Debug: Log the response data
+      console.log("Auth response data:", data);
+      console.log("User role:", data?.user?.role);
+
+      // Update global auth state instead of localStorage
+      if (data.user) {
+        // We still keep the user object in localStorage for basic non-sensitive UI persistence 
+        // but the role and actual auth will be verified by the backend
+        localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("Updated user data in localStorage (non-sensitive)");
+
+        // Sync with AuthContext
+        if (login) {
+          login(data.user);
+        }
+      }
+
+      // Strict role-based navigation after successful login/signup
       const role = data?.user?.role;
-      navigate("/"); // change if admin/user paths differ
+      toast.success(mode === "login" ? "Logged in successfully" : "Account created successfully");
+
+      // Reload or navigate as usual - the AuthContext will pick up the new session on the next mount/check
+      if (role === "user") {
+        navigate("/dashboard");
+      } else if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
 
     } catch (err) {
       console.error("Auth error:", err);
       setError(err.message || "Something went wrong");
+      toast.error(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

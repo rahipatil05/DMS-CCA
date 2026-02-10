@@ -7,12 +7,37 @@ const agentSchema = new mongoose.Schema(
       required: true
     },
 
+    description: {
+      type: String,
+      default: ""
+    },
+
     prompt: {
       type: String,
       required: true
     },
 
+    icon: {
+      type: String,
+      default: "Bot"
+    },
+
+    color: {
+      type: String,
+      default: "from-blue-500 to-cyan-500"
+    },
+
+    isDefault: {
+      type: Boolean,
+      default: false
+    },
+
     isCustom: {
+      type: Boolean,
+      default: false
+    },
+
+    isPublic: {
       type: Boolean,
       default: false
     },

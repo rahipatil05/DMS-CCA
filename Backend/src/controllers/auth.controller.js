@@ -49,9 +49,12 @@ export const signup = async (req, res) => {
       generateToken(savedUser._id, res);
 
       res.status(201).json({
-        _id: savedUser._id,
-        fullName: savedUser.fullName,
-        email: savedUser.email,
+        user: {
+          _id: savedUser._id,
+          fullName: savedUser.fullName,
+          email: savedUser.email,
+          role: savedUser.role
+        }
       });
 
       // Send welcome email asynchronously (don't block response)
@@ -87,10 +90,12 @@ export const login = async (req, res) => {
     generateToken(user._id, res);
 
     res.status(200).json({
-      _id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      role : user.role
+      user: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role
+      }
     });
   } catch (error) {
     console.error("Error in login controller:", error);
@@ -105,20 +110,30 @@ export const logout = (_, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
-    if (!profilePic) return res.status(400).json({ message: "Profile pic is required" });
-
+    const { profilePic, dob, interests, personalityTraits, fullName } = req.body;
     const userId = req.user._id;
+    const updateData = {};
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    if (fullName) updateData.fullName = fullName;
+    if (dob) updateData.dob = dob;
+    if (interests) updateData.interests = interests;
+    if (personalityTraits) updateData.personalityTraits = personalityTraits;
+
+    if (profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updateData.profilePic = uploadResponse.secure_url;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      updateData,
       { new: true }
-    );
+    ).select("-password");
 
-    res.status(200).json(updatedUser);
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser
+    });
   } catch (error) {
     console.log("Error in update profile:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -161,9 +176,9 @@ export const clearAgentChat = async (req, res) => {
     }
 
     // Delete conversations with this specific agent
-    const result = await Conversation.deleteMany({ 
-      userId, 
-      agentId 
+    const result = await Conversation.deleteMany({
+      userId,
+      agentId
     });
 
     res.status(200).json({
@@ -175,5 +190,13 @@ export const clearAgentChat = async (req, res) => {
   } catch (error) {
     console.error("Error clearing agent chat:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };

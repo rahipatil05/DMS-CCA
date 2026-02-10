@@ -192,3 +192,29 @@
   transition: opacity 0.5s ease;
   filter: blur(18px);
 }
+
+/* ---------------- CUSTOM SCROLLBARS ---------------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(1 0 0 / 10%);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.18 220 / 40%);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(1 0 0 / 10%) transparent;
+}

@@ -3,43 +3,58 @@ import { genAI } from "../config/gemini.js";
 export const getGeminiReply = async (
   systemPrompt,
   messages,
-  emotion = "neutral"
+  emotion = "neutral",
+  userProfile = null
 ) => {
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash"
     });
 
-    // Emotion behavior controller
-    const emotionGuide = `
-USER EMOTIONAL STATE: ${emotion}
+    // Construct User Context string
+    let userContext = "";
+    if (userProfile) {
+      userContext = `
+USER PERSONALIZATION DATA:
+- Name: ${userProfile.fullName || "User"}
+- Date of Birth: ${userProfile.dob || "Unknown"}
+- Interests: ${userProfile.interests?.length > 0 ? userProfile.interests.join(", ") : "Not specified"}
+- Personality Traits: ${userProfile.personalityTraits?.length > 0 ? userProfile.personalityTraits.join(", ") : "Not specified"}
+`;
+    }
 
-You are a supportive personal companion AI.
+    // Enhanced prompt with formatting and behavioral guidance
+    const contextPrompt = `
+SYSTEM INSTRUCTION: ${systemPrompt || "You are a helpful, emotionally intelligent AI."}
 
-Behavior rules:
-- sad / lonely → warm, empathetic, reassuring, emotionally validating
-- anxious → calm, grounding, slow pacing, short sentences
-- angry → respectful, neutral, non-defensive, de-escalating
-- happy → upbeat, friendly, encouraging
-- confused → simple explanations, step-by-step, patient
-- neutral → balanced and conversational
+FORMATTING RULES (CRITICAL):
+- Use multiple paragraphs. Never send a single block of text.
+- Use newlines between different thoughts or sections.
+- Use bullet points for lists to improve readability.
+- Maintain a clean, spaced-out layout.
 
-Tone rules:
-- Sound human, not clinical or robotic
-- Avoid clichés and generic therapy talk
-- Do NOT over-explain unless asked
-- Prefer emotional acknowledgment before advice
+USER EMOTIONAL CONTEXT:
+The user seems to be feeling: ${emotion}.
+Confidence: ${emotion === 'neutral' ? 'N/A' : 'High'}
+${userContext}
+BEHAVIORAL GUIDANCE:
+1. ADDRESS THE USER'S QUESTION/INPUT DIRECTLY AND RELEVANTLY.
+2. Maintain your core persona defined in the SYSTEM INSTRUCTION.
+3. Adapt your tone based on the USER EMOTIONAL CONTEXT and USER PERSONALIZATION DATA.
+4. Use the user's personalization data (Name, DOB, Interests, Traits) as a source of truth about the user. Reference these facts naturally during the conversation to build rapport. You should be able to tell the user their own DOB or reference their specific interests if the context allows.
+5. Do NOT over-emphasize the emotional state; prioritize the content of the conversation.
+6. Avoid clinical clichés or generic "therapy talk".
+7. Be proactive in showing that you "know" and "remember" the user's details from their profile.
 
-Safety rules:
-- Never judge the user
-- Never dismiss emotions
-- If emotional distress is strong, prioritize support over solutions
-- If unsure, ask gentle clarifying questions
-
-Response style:
-- First acknowledge emotion
-- Then respond naturally
-- Keep responses concise unless user asks for detail
+SELF-DISCOVERY (CRITICAL):
+If you identify NEW interests, hobbies, or personality traits that are NOT already in the USER PERSONALIZATION DATA, you MUST list them at the very end of your response in this EXACT format:
+:::DISCOVERY:::
+{
+  "interests": ["new interest 1", "new interest 2"],
+  "personalityTraits": ["new trait 1"]
+}
+:::
+Only include the block if you actually find new information.
 `;
 
     const history = [
@@ -47,10 +62,7 @@ Response style:
         role: "user",
         parts: [
           {
-            text:
-              (systemPrompt || "You are a helpful, emotionally intelligent AI.") +
-              "\n\n" +
-              emotionGuide
+            text: contextPrompt
           }
         ]
       },
@@ -64,13 +76,13 @@ Response style:
       history,
       generationConfig: {
         temperature: emotion === "sad" || emotion === "lonely" ? 0.4 : 0.7,
-        maxOutputTokens: 250,
+        maxOutputTokens: 500, // Increased for better formatting
         topP: 0.9
       }
     });
 
     const result = await chat.sendMessage(
-      "Reply to the user following the emotional behavior rules above."
+      "Respond to the user's latest message following the SYSTEM INSTRUCTION, FORMATTING RULES, and BEHAVIORAL GUIDANCE provided above."
     );
 
     return result.response.text();
