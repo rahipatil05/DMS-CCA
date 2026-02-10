@@ -268,6 +268,12 @@ export default function ChatPage() {
             if (response.ok) {
                 const data = await response.json();
 
+                // Check if we are still on the same agent before proceeding
+                if (window.location.pathname.split('/').pop() !== agentId) {
+                    setSending(false);
+                    return;
+                }
+
                 // Add the user message officially
                 setMessages(prev => [
                     ...prev.filter(m => m !== userMsg),
@@ -292,11 +298,20 @@ export default function ChatPage() {
                 }]);
 
                 const typeChar = (index) => {
+                    // Safety check: if agent changed, stop typing
+                    if (window.location.pathname.split('/').pop() !== agentId) {
+                        setIsAnimating(false);
+                        return;
+                    }
+
                     if (index < fullText.length) {
                         currentText += fullText[index];
                         setMessages(prev => {
                             const newMessages = [...prev];
-                            newMessages[newMessages.length - 1].content = currentText;
+                            // Ensure there's a message to update and it's the right one
+                            if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === "assistant") {
+                                newMessages[newMessages.length - 1].content = currentText;
+                            }
                             return newMessages;
                         });
                         setTimeout(() => typeChar(index + 1), typingSpeed);
@@ -304,7 +319,9 @@ export default function ChatPage() {
                         // Mark as done
                         setMessages(prev => {
                             const newMessages = [...prev];
-                            newMessages[newMessages.length - 1].isAnimating = false;
+                            if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === "assistant") {
+                                newMessages[newMessages.length - 1].isAnimating = false;
+                            }
                             return newMessages;
                         });
                         setIsAnimating(false);
@@ -555,7 +572,7 @@ export default function ChatPage() {
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeAgent?.name || 'AI'} IS TYPING...</span>
                                 </div>
                                 <div className="max-w-[75%] rounded-2xl p-4 text-sm bg-[#0f1b2d] border border-white/5 text-gray-500 rounded-tl-none italic">
-                                    Analyzing emotions...
+                                    Analyzing chat...
                                 </div>
                             </div>
                         )}

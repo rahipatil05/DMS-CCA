@@ -41,6 +41,7 @@ export const sendMessage = async (req, res) => {
 
     // Add user message
     chat.messages.push({ role: "user", content: message, emotion: emotionLabel });
+    await chat.save(); // Save immediately so it persists if user switches agents
 
     // Get AI reply
     const reply = await getOllamaReply(
@@ -54,15 +55,17 @@ export const sendMessage = async (req, res) => {
     // Intercept and parse Self-Discovery block
     let discoveries = null;
     let cleanReply = reply;
-    const discoveryMatch = reply.match(/:::DISCOVERY:::([\s\S]*?):::/);
+    const discoveryRegex = /:::DISCOVERY:::([\s\S]*?)(:::|$)/;
+    const discoveryMatch = reply.match(discoveryRegex);
 
     if (discoveryMatch) {
       try {
         discoveries = JSON.parse(discoveryMatch[1].trim());
-        cleanReply = reply.replace(/:::DISCOVERY:::[\s\S]*?:::/, "").trim();
       } catch (e) {
         console.error("Error parsing discovery JSON:", e);
       }
+      // Always remove the block from the reply that the user sees
+      cleanReply = reply.replace(discoveryRegex, "").trim();
     }
 
     // Add assistant message
