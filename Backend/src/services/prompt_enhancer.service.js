@@ -1,10 +1,10 @@
-import { genAI } from "../config/gemini.js";
+import { Ollama } from 'ollama';
+
+const ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
 
 export const enhancePrompt = async (prompt) => {
     try {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash"
-        });
+        const model = "llama3.1:latest";
 
         const instruction = `
 You are an expert AI Prompt Engineer. Your task is to rewrite the given AI system prompt to be more detailed, professional, and effective.
@@ -23,17 +23,18 @@ INPUT PROMPT:
 ENHANCED PROMPT:
 `;
 
-        const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: instruction }] }],
-            generationConfig: {
-                maxOutputTokens: 1024,
-                temperature: 0.7
-            }
+        const response = await ollama.chat({
+            model: model,
+            messages: [{ role: 'user', content: instruction }],
+            options: {
+                temperature: 0.7,
+            },
+            stream: false,
         });
-        const response = await result.response;
-        return response.text().trim();
+
+        return response.message.content.trim();
     } catch (error) {
-        console.error("❌ Gemini API Enhancement Error:", {
+        console.error("❌ Ollama AI Enhancement Error:", {
             message: error.message,
             stack: error.stack,
             promptSnippet: prompt.substring(0, 50) + "..."

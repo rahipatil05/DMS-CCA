@@ -1,31 +1,31 @@
-import { genAI } from "../config/gemini.js";
+import { Ollama } from 'ollama';
 
-export const getGeminiReply = async (
-  systemPrompt,
-  messages,
-  emotion = "neutral",
-  userProfile = null,
-  preferredLength = "medium"
+const ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
+
+export const getOllamaReply = async (
+    systemPrompt,
+    messages,
+    emotion = "neutral",
+    userProfile = null,
+    preferredLength = "medium"
 ) => {
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash"
-    });
+    try {
+        const model = "llama3.1:latest";
 
-    // Construct User Context string
-    let userContext = "";
-    if (userProfile) {
-      userContext = `
+        // Construct User Context string
+        let userContext = "";
+        if (userProfile) {
+            userContext = `
 USER PERSONALIZATION DATA:
 - Name: ${userProfile.fullName || "User"}
 - Date of Birth: ${userProfile.dob || "Unknown"}
 - Interests: ${userProfile.interests?.length > 0 ? userProfile.interests.join(", ") : "Not specified"}
 - Personality Traits: ${userProfile.personalityTraits?.length > 0 ? userProfile.personalityTraits.join(", ") : "Not specified"}
 `;
-    }
+        }
 
-    // Enhanced prompt with formatting and behavioral guidance
-    const contextPrompt = `
+        // Enhanced prompt with formatting and behavioral guidance
+        const contextPrompt = `
 SYSTEM INSTRUCTION: ${systemPrompt || "You are a helpful, emotionally intelligent AI."}
 
 FORMATTING RULES (CRITICAL):
@@ -68,44 +68,27 @@ If you identify NEW interests, hobbies, or personality traits that are NOT alrea
 Only include the block if you actually find new information.
 `;
 
-    const history = [
-      {
-        role: "user",
-        parts: [
-          {
-            text: contextPrompt
-          }
-        ]
-      },
-      ...messages.map((msg) => ({
-        role: msg.role === "assistant" ? "model" : "user",
-        parts: [{ text: msg.content }]
-      }))
-    ];
+        const formattedMessages = [
+            { role: "system", content: contextPrompt },
+            ...messages.map((msg) => ({
+                role: msg.role === "assistant" ? "assistant" : "user",
+                content: msg.content,
+            })),
+        ];
 
-    // Adjust tokens based on preferred length
-    const lengthTokenMap = {
-      small: 512,
-      medium: 2048,
-      long: 8192
-    };
+        const response = await ollama.chat({
+            model: model,
+            messages: formattedMessages,
+            options: {
+                temperature: emotion === "sad" || emotion === "lonely" ? 0.4 : 0.7,
+                top_p: 0.9,
+            },
+            stream: false,
+        });
 
-    const chat = model.startChat({
-      history,
-      generationConfig: {
-        temperature: emotion === "sad" || emotion === "lonely" ? 0.4 : 0.7,
-        maxOutputTokens: lengthTokenMap[preferredLength] || 2048,
-        topP: 0.9
-      }
-    });
-
-    const result = await chat.sendMessage(
-      "Respond to the user's latest message following the SYSTEM INSTRUCTION, FORMATTING RULES, and BEHAVIORAL GUIDANCE provided above."
-    );
-
-    return result.response.text();
-  } catch (err) {
-    console.error("Gemini API error:", err);
-    return "I'm here with you. Something went wrong on my side, but we can keep talking.";
-  }
+        return response.message.content;
+    } catch (err) {
+        console.error("Ollama API error:", err);
+        return "I'm here with you. Something went wrong on my side, but we can keep talking.";
+    }
 };

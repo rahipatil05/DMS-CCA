@@ -1,7 +1,7 @@
 import Chat from "../models/Conversation.model.js";
 import Agent from "../models/Agent.model.js";
 import { detectEmotion } from "../services/emotion.service.js";
-import { getGeminiReply } from "../services/gemini.service.js";
+import { getOllamaReply } from "../services/ollama.service.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -43,7 +43,7 @@ export const sendMessage = async (req, res) => {
     chat.messages.push({ role: "user", content: message, emotion: emotionLabel });
 
     // Get AI reply
-    const reply = await getGeminiReply(
+    const reply = await getOllamaReply(
       agent.prompt,
       chat.messages,
       emotionLabel,
