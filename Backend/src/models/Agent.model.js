@@ -52,6 +52,11 @@ const agentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
+    },
+    preferredLength: {
+      type: String,
+      enum: ["small", "medium", "long"],
+      default: "medium"
     }
   },
   { timestamps: true }

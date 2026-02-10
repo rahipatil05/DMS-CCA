@@ -387,7 +387,7 @@ export default function Dashboard() {
                                             </div>
                                         </CardHeader>
                                         <CardContent className="p-6">
-                                            <CardTitle className={`text-xl font-bold mb-2 bg-linear-to-r ${agent.color} bg-clip-text text-transparent p-0`}>
+                                            <CardTitle className="text-xl font-bold mb-2 text-white p-0">
                                                 {agent.name}
                                             </CardTitle>
                                             <CardDescription className="text-gray-400 text-sm">

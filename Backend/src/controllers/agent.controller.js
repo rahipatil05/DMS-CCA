@@ -1,5 +1,6 @@
 import Agent from "../models/Agent.model.js";
 import mongoose from "mongoose";
+import { enhancePrompt as enhancePromptService } from "../services/prompt_enhancer.service.js";
 
 export const createAgent = async (req, res) => {
   try {
@@ -67,5 +68,21 @@ export const deleteAgent = async (req, res) => {
       message: "Internal server error",
       error: error.message
     });
+  }
+};
+
+export const enhancePrompt = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt || prompt.trim() === "") {
+      return res.status(400).json({ message: "Prompt is required for enhancement" });
+    }
+
+    const enhanced = await enhancePromptService(prompt);
+    res.json({ enhanced });
+  } catch (error) {
+    console.error("Error in enhancePrompt controller:", error);
+    res.status(500).json({ message: "Failed to enhance prompt", error: error.message });
   }
 };

@@ -47,7 +47,8 @@ export const sendMessage = async (req, res) => {
       agent.prompt,
       chat.messages,
       emotionLabel,
-      req.user // Pass full user profile for personalization
+      req.user, // Pass full user profile for personalization
+      agent.preferredLength
     );
 
     // Intercept and parse Self-Discovery block

@@ -69,6 +69,7 @@ export default function ChatPage() {
     const [activeAgent, setActiveAgent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -243,7 +244,7 @@ export default function ChatPage() {
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!message.trim() || !agentId || sending) return;
+        if (!message.trim() || !agentId || sending || isAnimating) return;
 
         const userMsg = {
             role: "user",
@@ -266,12 +267,51 @@ export default function ChatPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                // Replace predicted history with official history or just add the reply
+
+                // Add the user message officially
                 setMessages(prev => [
-                    ...prev.filter(m => m !== userMsg), // Remove the temporary one
-                    { role: "user", content: currentMessage, createdAt: new Date().toISOString() },
-                    { role: "assistant", content: data.reply, createdAt: new Date().toISOString() }
+                    ...prev.filter(m => m !== userMsg),
+                    { role: "user", content: currentMessage, createdAt: new Date().toISOString() }
                 ]);
+
+                // Stop the 'Analyzing emotions' pulse as we now have the data
+                setSending(false);
+                setIsAnimating(true);
+
+                // Start typing animation for AI reply
+                let currentText = "";
+                const fullText = data.reply;
+                const typingSpeed = 5; // Faster for chat
+
+                // Add empty assistant message that we will fill
+                setMessages(prev => [...prev, {
+                    role: "assistant",
+                    content: "",
+                    createdAt: new Date().toISOString(),
+                    isAnimating: true
+                }]);
+
+                const typeChar = (index) => {
+                    if (index < fullText.length) {
+                        currentText += fullText[index];
+                        setMessages(prev => {
+                            const newMessages = [...prev];
+                            newMessages[newMessages.length - 1].content = currentText;
+                            return newMessages;
+                        });
+                        setTimeout(() => typeChar(index + 1), typingSpeed);
+                    } else {
+                        // Mark as done
+                        setMessages(prev => {
+                            const newMessages = [...prev];
+                            newMessages[newMessages.length - 1].isAnimating = false;
+                            return newMessages;
+                        });
+                        setIsAnimating(false);
+                    }
+                };
+
+                typeChar(0);
 
                 // Handle AI Discoveries
                 if (data.discoveries && (data.discoveries.interests?.length > 0 || data.discoveries.personalityTraits?.length > 0)) {
@@ -290,12 +330,15 @@ export default function ChatPage() {
                         }
                     });
                 }
+            } else {
+                setSending(false);
+                setIsAnimating(false);
             }
         } catch (error) {
             console.error("Error sending message:", error);
             toast.error("Communication error. Please try again.");
-        } finally {
             setSending(false);
+            setIsAnimating(false);
         }
     };
 
@@ -529,13 +572,15 @@ export default function ChatPage() {
                                 <input
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Type what's on your mind..."
-                                    className="w-[70%] bg-transparent border-none outline-none text-white placeholder-gray-500 text-xs h-7 ml-1"
+                                    disabled={sending || isAnimating}
+                                    placeholder={sending ? "Analysing emotions..." : isAnimating ? "Agent is typing..." : "Type what's on your mind..."}
+                                    className="w-[70%] bg-transparent border-none outline-none text-white placeholder-gray-500 text-xs h-7 ml-1 disabled:opacity-50"
                                 />
                                 <Button
                                     type="submit"
                                     size="icon"
-                                    className="h-7 w-7 bg-blue-500 hover:bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20 shrink-0"
+                                    disabled={sending || isAnimating}
+                                    className="h-7 w-7 bg-blue-500 hover:bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20 shrink-0 disabled:opacity-50"
                                 >
                                     <Send className="w-3.5 h-3.5" />
                                 </Button>

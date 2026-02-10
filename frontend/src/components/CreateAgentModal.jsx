@@ -26,12 +26,59 @@ export default function CreateAgentModal({ isOpen, onClose, onSuccess }) {
         description: '',
         prompt: '',
         icon: 'Bot',
-        color: 'from-blue-500 to-cyan-500'
+        color: 'from-blue-500 to-cyan-500',
+        preferredLength: 'medium'
     });
     const [loading, setLoading] = useState(false);
+    const [isEnhancing, setIsEnhancing] = useState(false);
     const [error, setError] = useState(null);
 
     if (!isOpen) return null;
+
+    const handleEnhancePrompt = async () => {
+        if (!formData.prompt.trim()) return;
+
+        setIsEnhancing(true);
+        setError(null);
+
+        try {
+            const response = await fetch("http://localhost:5000/api/agents/enhance-prompt", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: formData.prompt }),
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to enhance prompt');
+            }
+
+            const { enhanced } = await response.json();
+
+            // Typing animation
+            let currentText = "";
+            const textToType = enhanced;
+            const speed = 10; // ms per character
+
+            const typeNextChar = (index) => {
+                if (index < textToType.length) {
+                    currentText += textToType[index];
+                    setFormData(prev => ({ ...prev, prompt: currentText }));
+                    setTimeout(() => typeNextChar(index + 1), speed);
+                } else {
+                    setIsEnhancing(false);
+                }
+            };
+
+            setFormData(prev => ({ ...prev, prompt: "" }));
+            typeNextChar(0);
+
+        } catch (err) {
+            setError(err.message);
+            setIsEnhancing(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -136,17 +183,51 @@ export default function CreateAgentModal({ isOpen, onClose, onSuccess }) {
                                         className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
                                     />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Preferred Response Length</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {['small', 'medium', 'long'].map((length) => (
+                                            <button
+                                                key={length}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, preferredLength: length })}
+                                                className={`px-3 py-2 rounded-xl text-xs font-semibold capitalize transition-all border ${formData.preferredLength === length
+                                                        ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                                                        : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {length}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-1.5">System Prompt</label>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="block text-sm font-medium text-gray-300">System Prompt</label>
+                                    <button
+                                        type="button"
+                                        onClick={handleEnhancePrompt}
+                                        disabled={isEnhancing || !formData.prompt.trim()}
+                                        className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 transition-all border border-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed group"
+                                    >
+                                        {isEnhancing ? (
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                        ) : (
+                                            <Sparkles className="w-3 h-3 group-hover:animate-pulse" />
+                                        )}
+                                        {isEnhancing ? 'Enhancing...' : 'Enhance Prompt'}
+                                    </button>
+                                </div>
                                 <textarea
                                     required
                                     rows={4}
                                     value={formData.prompt}
                                     onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
+                                    disabled={isEnhancing}
                                     placeholder="How should the agent behave? e.g. You are a helpful assistant..."
-                                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+                                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none disabled:opacity-70"
                                 />
                             </div>
                         </div>

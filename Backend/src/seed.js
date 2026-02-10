@@ -28,43 +28,43 @@ const seed = async () => {
 
     const users = await User.create([
       {
-        name: "Admin One",
+        fullName: "Admin One",
         email: "admin1@example.com",
         password: adminPassword,
         role: "admin"
       },
       {
-        name: "Admin Two",
+        fullName: "Admin Two",
         email: "admin2@example.com",
         password: adminPassword,
         role: "admin"
       },
       {
-        name: "User One",
+        fullName: "User One",
         email: "user1@example.com",
         password: userPassword,
         role: "user"
       },
       {
-        name: "User Two",
+        fullName: "User Two",
         email: "user2@example.com",
         password: userPassword,
         role: "user"
       },
       {
-        name: "User Three",
+        fullName: "User Three",
         email: "user3@example.com",
         password: userPassword,
         role: "user"
       },
       {
-        name: "User Four",
+        fullName: "User Four",
         email: "user4@example.com",
         password: userPassword,
         role: "user"
       },
       {
-        name: "User Five",
+        fullName: "User Five",
         email: "user5@example.com",
         password: userPassword,
         role: "user"
@@ -97,7 +97,7 @@ const seed = async () => {
         name: "Code Mentor",
         description: "Expert programming assistant",
         prompt:
-          "You are Code Mentor, an experienced software developer and programming teacher. Help users with coding challenges, debugging, best practices, and technical concepts. Provide clear explanations, practical examples, and step-by-step guidance. Be precise, thorough, and encouraging. Support all programming languages and frameworks.",
+          "You are Power Assistant, a high-performance AI focused on direct results, complex logic, and precise code generation. Do not use excessive conversational filler. If asked for code, provide it immediately and ensure it is complete, optimized, and ready to use. You specialize in software architecture, advanced AI concepts, and solving difficult engineering problems with minimal chat overhead.",
         icon: "Code",
         color: "from-blue-500 to-cyan-500",
         isDefault: true,
