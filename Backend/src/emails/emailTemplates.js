@@ -112,9 +112,9 @@ export const WELCOME_EMAIL_TEMPLATE = (fullName, clientUrl) => `
                         <td align="center" style="padding: 60px; background: #000000;">
                             <p
                                 style="color: #ffffff; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; margin: 0 0 12px 0;">
-                                Multi AI Platform</p>
+                                Multi Personalized AI Agent Platform</p>
                             <p style="color: #475569; font-size: 12px; margin: 0;">
-                                &copy; 2026 Multi AI Platform. Built for the bold.
+                                &copy; 2026 Multi Personalized AI Agent Platform. Built for the bold.
                             </p>
                         </td>
                     </tr>

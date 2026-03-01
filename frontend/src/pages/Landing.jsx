@@ -135,9 +135,9 @@ export default function Landing() {
                         </div>
                         <div>
                             <h1 className="text-xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                Multi AI Platform
+                                Multi-Personalized
                             </h1>
-                            <p className="text-xs text-gray-400">Personalized Intelligence</p>
+                            <p className="text-xs text-gray-400">AI Agent Platform</p>
                         </div>
                     </div>
 
@@ -329,14 +329,14 @@ export default function Landing() {
                             <Brain className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-lg font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                            Multi AI Platform
+                            Multi-Personalized AI Agent Platform
                         </span>
                     </div>
                     <p className="text-gray-400 text-sm mb-4">
                         Empowering conversations with personalized AI agents
                     </p>
                     <p className="text-gray-500 text-xs">
-                        © 2026 Multi AI Platform. All rights reserved.
+                        © 2026 All rights reserved.
                     </p>
                 </div>
             </footer>

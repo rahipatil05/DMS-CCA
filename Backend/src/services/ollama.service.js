@@ -42,8 +42,8 @@ ${userContext}
 
 RESPONSE LENGTH PREFERENCE:
 The user prefers a **${preferredLength}** response. 
-- Small: Very concise, direct, 1-2 short paragraphs or few bullet points.
-- Medium: Balanced depth, 2-4 paragraphs.
+- Small: Very concise, direct, 1-2 lines or few bullet points.
+- Medium: Balanced depth, 4 5 lines .
 - Long: Highly detailed, comprehensive, multi-paragraph or extensive bullet points.
 
 BEHAVIORAL GUIDANCE:
@@ -65,7 +65,7 @@ If you identify NEW interests, hobbies, or personality traits that are NOT alrea
   "personalityTraits": ["new trait 1"]
 }
 :::
-Only include the block if you actually find new information.
+Only include the block if you actually find new information..
 `;
 
         const formattedMessages = [
