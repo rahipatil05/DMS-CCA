@@ -1,0 +1,53 @@
+flowchart TB
+
+%% =========================
+%% Frontend Layer
+%% =========================
+subgraph FE["Frontend Layer (React)"]
+    direction TB
+    UI["🖥️ User Interface (Glassmorphic UI)"]
+    ES["📊 Emotion Visualizer"]
+end
+
+%% =========================
+%% Backend Layer
+%% =========================
+subgraph BE["Backend Layer (Node.js / Express)"]
+    direction TB
+    API["🔗 REST API"]
+    CC["🧠 Chat Controller"]
+    EM["💬 Emotion Service"]
+    SD["🌱 Self-Discovery Engine"]
+end
+
+%% =========================
+%% AI Layer
+%% =========================
+subgraph AI["AI Layer (Local)"]
+    direction TB
+    OL["⚙️ Ollama Framework"]
+    LLM["🤖 Llama 3.1 Model"]
+end
+
+%% =========================
+%% Database Layer
+%% =========================
+subgraph DBL["Database Layer"]
+    direction TB
+    DB[(🗄️ MongoDB)]
+    UP["👤 User Profiles"]
+end
+
+%% =========================
+%% Connections
+%% =========================
+
+UI <--> API
+API --> CC
+CC --> EM
+CC --> OL
+OL --> LLM
+OL --> SD
+SD --> DB
+DB --> UP
+EM --> ES

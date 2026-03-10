@@ -1,0 +1,22 @@
+flowchart TD
+
+A["User"] --> B["React UI"]
+B --> C["Node Backend"]
+C --> D["Emotion + Context Engine"]
+
+subgraph "Knowledge"
+    F[("User Profile DB")]
+    G[("Agent Meta DB")]
+end
+
+F --> D
+G --> D
+
+D --> H["Ollama (Llama 3.1)"]
+H --> I{"Discovery?"}
+
+I -- Yes --> J["Update Profile"]
+I -- No --> K["Sanitized Response"]
+
+J --> K
+K --> B
