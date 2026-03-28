@@ -11,7 +11,8 @@ Complete reference for all API endpoints with request/response examples.
 2. [Agent Routes](#agent-routes)
 3. [Chat Routes](#chat-routes)
 4. [Admin Routes](#admin-routes)
-5. [Quick Reference](#quick-reference)
+5. [Analytics Routes](#analytics-routes)
+6. [Quick Reference](#quick-reference)
 
 ---
 
@@ -797,6 +798,54 @@ curl -X GET http://localhost:5000/api/admin/agents \
 
 ---
 
+# Analytics Routes
+
+Base path: `/api/analytics`
+
+## 1. Get Dashboard Analytics
+
+**GET** `/api/analytics`
+
+Retrieve complete user analytics including message counts, emotion distribution, and agent usage stats over various time periods.
+
+**Authentication:** Required (JWT token)
+
+**Request Body:** None
+
+**Success Response (200):**
+```json
+{
+  "summary": { "totalMessages": 150, "dominantEmotion": "happy" },
+  "emotionDistribution": [{ "emotion": "happy", "count": 100 }],
+  "agentUsage": [{ "name": "Empathy AI", "messages": 100 }]
+}
+```
+
+---
+
+## 2. Generate Weekly Wellness Journal
+
+**GET** `/api/analytics/journal`
+
+On-demand AI generation of a Weekly Mental Wellness Journal based on the last 7 days of conversation history.
+
+**Authentication:** Required (JWT token)
+
+**Request Body:** None
+
+**Success Response (200):**
+```json
+{
+  "journal": "# 📝 Your Weekly Emotional Journey\n\n## 🌊 The Emotional Landscape\n\n..."
+}
+```
+
+**Error Responses:**
+- `400` - Not enough conversation data in the last 7 days
+- `500` - Failed to complete journal generation
+
+---
+
 # Quick Reference
 
 ## Authentication Headers
@@ -848,6 +897,8 @@ https://your-domain.com
 | GET | `/api/admin/users` | Admin | Get all users |
 | DELETE | `/api/admin/users/:id` | Admin | Delete user |
 | GET | `/api/admin/agents` | Admin | Get all agents |
+| GET | `/api/analytics` | Yes | Get comprehensive dashboard analytics |
+| GET | `/api/analytics/journal` | Yes | Generate Weekly Mental Wellness Journal |
 
 ---
 

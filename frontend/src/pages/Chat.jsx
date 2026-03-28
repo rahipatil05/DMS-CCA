@@ -62,7 +62,7 @@ const AgentIcon = ({ iconName, color, size = "large" }) => {
 export default function ChatPage() {
     const { agentId } = useParams();
     const navigate = useNavigate();
-    const { authUser } = useAuth();
+    const { authUser, setAuthUser } = useAuth();
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [agents, setAgents] = useState([]);
@@ -214,7 +214,7 @@ export default function ChatPage() {
     const handleAcceptDiscovery = async (discoveryData) => {
         try {
             // Get current user to merge data
-            const currentUser = getStoredUser();
+            const currentUser = authUser;
             const updatedInterests = [...new Set([...(currentUser.interests || []), ...(discoveryData.interests || [])])];
             const updatedTraits = [...new Set([...(currentUser.personalityTraits || []), ...(discoveryData.personalityTraits || [])])];
 
@@ -230,8 +230,8 @@ export default function ChatPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                // Update local storage
-                localStorage.setItem("user", JSON.stringify(data.user));
+                // Update global state
+                if (setAuthUser) setAuthUser(data.user);
                 toast.success("Profile updated with new discoveries!", {
                     icon: <Check className="w-4 h-4 text-green-500" />
                 });

@@ -4,6 +4,7 @@ import Auth from './pages/auth/Auth.jsx'
 import Landing from './pages/Landing.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Chat from './pages/Chat.jsx'
+import Analytics from './pages/Analytics.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 import { Toaster } from "./components/ui/sonner";
@@ -51,6 +52,14 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRole="user">
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Analytics />
             </ProtectedRoute>
           }
         />

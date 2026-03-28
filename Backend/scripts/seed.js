@@ -4,9 +4,9 @@ dotenv.config();
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-import { connectDB } from "./config/db.js";
-import User from "./models/User.model.js";
-import Agent from "./models/Agent.model.js";
+import { connectDB } from "../src/config/db.js";
+import User from "../src/models/User.model.js";
+import Agent from "../src/models/Agent.model.js";
 
 const seed = async () => {
   try {

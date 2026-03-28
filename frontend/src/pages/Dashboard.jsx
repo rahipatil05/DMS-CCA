@@ -263,6 +263,15 @@ export default function Dashboard() {
                     <div className="flex items-center gap-2">
                         <Button
                             variant="outline"
+                            size="sm"
+                            onClick={() => navigate('/analytics')}
+                            className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all duration-300 gap-2"
+                        >
+                            <BarChart3 className="w-4 h-4 text-blue-400" />
+                            <span className="text-sm text-gray-300">Analytics</span>
+                        </Button>
+                        <Button
+                            variant="outline"
                             size="icon"
                             onClick={() => setIsProfileModalOpen(true)}
                             className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all duration-300"
