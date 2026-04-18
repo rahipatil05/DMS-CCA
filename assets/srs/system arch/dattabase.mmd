@@ -1,0 +1,23 @@
+flowchart TD
+
+    A[(MongoDB)] --> B[User Collection<br/>User.model.js]
+    A --> C[Agent Collection<br/>Agent.model.js]
+    A --> D[Conversation Collection<br/>Conversation.model.js]
+
+    B -- owns --> C
+    B -- owns --> D
+    C -- linked to --> D
+
+    C --> E[System Prompt<br/>Behavioral Config<br/>Discovery History]
+    D --> F[Chat Messages<br/>Agent Reference<br/>User Reference]
+    B --> G[Auth Credentials<br/>Profile Metadata]
+
+    subgraph Database_MongoDB_Mongoose
+        direction TB
+        B
+        C
+        D
+        E
+        F
+        G
+    end

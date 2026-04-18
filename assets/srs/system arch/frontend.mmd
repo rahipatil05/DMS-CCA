@@ -1,0 +1,40 @@
+flowchart TD
+
+    A[main.jsx] --> B[App.jsx]
+
+    B --> C{Route Guard<br/>ProtectedRoute}
+
+    C --> D[Landing.jsx]
+    C --> E[Dashboard.jsx]
+    C --> F[Chat.jsx]
+    C --> G[Analytics.jsx]
+
+    E --> H[CreateAgentModal]
+    E --> I[EditProfileModal]
+
+    F --> J[UI Components]
+    G --> J
+
+    K[context] --> B
+
+    L[hooks] --> E
+    L --> F
+    L --> G
+
+    M[lib utils] --> L
+
+    subgraph Frontend_React_Vite
+        direction TB
+        B
+        C
+        D
+        E
+        F
+        G
+        H
+        I
+        J
+        K
+        L
+        M
+    end

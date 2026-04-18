@@ -1,0 +1,44 @@
+flowchart TD
+
+    A[server.js] --> B[app.js]
+
+    B --> C[Middleware<br/>Auth Validation]
+
+    C --> D[auth.routes]
+    C --> E[agent.routes]
+    C --> F[chat.routes]
+    C --> G[analytics.routes]
+    C --> H[user.routes]
+    C --> I[admin.routes]
+
+    D --> J[Auth Controller]
+    E --> K[Agent Controller]
+    F --> L[Chat Controller]
+    G --> M[Analytics Controller]
+
+    L --> N[Emotion Service]
+    L --> O[Ollama LLM Service]
+
+    J --> P[config lib]
+    K --> P
+    L --> P
+    M --> P
+
+    subgraph Backend_NodeJS_Express
+        direction TB
+        B
+        C
+        D
+        E
+        F
+        G
+        H
+        I
+        J
+        K
+        L
+        M
+        N
+        O
+        P
+    end

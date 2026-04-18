@@ -1,0 +1,28 @@
+graph TD
+    A[User Input] --> B[React Frontend]
+    B --> C[Node.js Backend]
+    C --> D[Emotion Analysis Service]
+    D --> E[Context Aggregator]
+    F[(MongoDB: User Profile)] --> E
+    G[(MongoDB: Agent Prompt)] --> E
+    E --> H[Ollama · Llama 3.1\nLocal Inference]
+    H --> I[Response Interceptor]
+    I --> J{Discovery Found?}
+    J -- Yes --> K[Update Agent Persona\nin MongoDB]
+    J -- No --> L[Sanitize Response]
+    K --> L
+    L --> M[Display to User]
+    M --> B
+
+    subgraph Multi Personalized AI Agent Platform
+        B
+        C
+        D
+        E
+        H
+        I
+        J
+        K
+        L
+        M
+    end
