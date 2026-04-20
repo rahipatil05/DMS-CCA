@@ -19,7 +19,8 @@ import {
     Palette,
     Check,
     Trash2,
-    X
+    X,
+    Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -452,14 +453,15 @@ export default function ChatPage() {
                             <MessageSquare className="w-4 h-4" />
                         </Button>
 
-                        {/* Back — desktop only */}
+                        {/* Home / Back to Dashboard */}
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => navigate('/dashboard')}
-                            className="hidden md:flex h-9 w-9 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all shrink-0"
+                            className="flex h-9 w-9 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all shrink-0"
+                            title="Go to Dashboard"
                         >
-                            <ArrowLeft className="w-4 h-4" />
+                            <Home className="w-4 h-4" />
                         </Button>
 
                         {/* Agent icon + name */}
