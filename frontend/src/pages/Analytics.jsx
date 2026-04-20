@@ -387,9 +387,11 @@ export default function Analytics() {
                 .back-btn:hover { background: rgba(56,189,248,0.12) !important; }
                 .analytics-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
                 .analytics-wellbeing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-                @media (max-width: 640px) {
-                    .analytics-grid-2 { grid-template-columns: 1fr !important; }
-                    .analytics-wellbeing-grid { grid-template-columns: 1fr !important; }
+                .analytics-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+                @media (max-width: 768px) {
+                    .analytics-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+                    .analytics-grid-2 { grid-template-columns: minmax(0, 1fr) !important; }
+                    .analytics-wellbeing-grid { grid-template-columns: minmax(0, 1fr) !important; }
                     .analytics-journal-label { display: none; }
                     .analytics-refresh-label { display: none; }
                 }
@@ -427,8 +429,8 @@ export default function Analytics() {
                                 <BarChart3 size={17} color="#fff" />
                             </div>
                             <div>
-                                <p style={{ fontSize: "15px", fontWeight: 700, color: "#f1f5f9" }}>Analytics</p>
-                                <p style={{ fontSize: "10px", color: THEME.muted }}>{s.totalMessages} data points · {userName}</p>
+                                <p style={{ fontSize: "15px", fontWeight: 700, color: "#f1f5f9" }} className="hidden sm:block">Analytics</p>
+                                <p style={{ fontSize: "10px", color: THEME.muted }} className="hidden sm:block">{s.totalMessages} data points · {userName}</p>
                             </div>
                         </div>
                     </div>
@@ -462,7 +464,7 @@ export default function Analytics() {
             }}>
                 <div style={{
                     maxWidth: "1280px", margin: "0 auto", padding: "0 24px",
-                    display: "flex", gap: "4px"
+                    display: "flex", gap: "4px", overflowX: "auto", scrollbarWidth: "none"
                 }}>
                     {tabs.map(tab => {
                         const Icon = tab.icon;
@@ -490,11 +492,7 @@ export default function Analytics() {
                 {activeTab === "overview" && (
                     <div className="anim">
                         {/* Hero stats */}
-                        <div style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                            gap: "14px", marginBottom: "24px"
-                        }}>
+                        <div className="analytics-stats-grid">
                             <StatCard icon={MessageSquare} label="Total Messages" value={s.totalMessages || 0} sub="All conversations" color={THEME.primary} />
                             <StatCard icon={Activity} label="Conversations" value={s.totalConversations || 0} sub="With all agents" color={THEME.secondary} />
                             <StatCard icon={Bot} label="Agents Used" value={s.totalAgentsUsed || 0} sub="Unique agents" color={THEME.accent} />

@@ -16,6 +16,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 5173,
     strictPort: true,
+    allowedHosts: [
+      "f109-2409-40f2-3018-4e4d-783c-79b5-5cef-9a57.ngrok-free.app",
+      ".ngrok-free.app"
+    ],
   },
   build: {
     sourcemap: mode !== "production",

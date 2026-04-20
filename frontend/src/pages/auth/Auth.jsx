@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, User, Loader2, Sparkles, Shield, Zap } from "lucide-react";
+import { Mail, Lock, User, Loader2, Sparkles, Shield, Zap, ArrowLeft } from "lucide-react";
 import { useAuthSubmit } from "./useAuthSubmit";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AuthPage() {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [mode, setMode] = useState("login");
   const [particles, setParticles] = useState([]);
@@ -48,6 +50,15 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen relative flex bg-[radial-gradient(circle_at_top_right,#0a192f_0%,#060b13_100%)] text-white overflow-hidden">
+      
+      {/* Home Navigation */}
+      <button 
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-4 md:left-6 z-50 flex items-center gap-2 text-gray-400 hover:text-blue-400 bg-white/5 border border-white/10 hover:bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-md transition-all animate-fade-in shadow-lg cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm font-semibold">Back to Home</span>
+      </button>
 
       {/* Animated Background Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -68,8 +79,8 @@ export default function AuthPage() {
       </div>
 
       {/* Gradient Orbs */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-10 md:top-20 -left-10 md:left-10 w-48 h-48 md:w-72 md:h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none" />
+      <div className="absolute bottom-10 md:bottom-20 -right-10 md:right-10 w-64 h-64 md:w-96 md:h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse pointer-events-none" style={{ animationDelay: '1s' }} />
 
       <main className="flex-1 flex items-center justify-center px-4 py-16 relative z-10">
         <div className="w-full max-w-md">
@@ -283,7 +294,7 @@ export default function AuthPage() {
         </div>
       </main>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) translateX(0); }
           25% { transform: translateY(-20px) translateX(10px); }

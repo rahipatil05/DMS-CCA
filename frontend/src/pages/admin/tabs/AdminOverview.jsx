@@ -152,6 +152,12 @@ export default function AdminOverview() {
 
   return (
     <div>
+      <style>{`
+        .admin-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 768px) {
+          .admin-grid-2 { grid-template-columns: minmax(0, 1fr) !important; }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
@@ -177,7 +183,7 @@ export default function AdminOverview() {
       </div>
 
       {/* Charts Row 1 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+      <div className="admin-grid-2" style={{ marginBottom: "14px" }}>
         <ChartCard title="Monthly Activity" subtitle="User registrations & conversations" icon={Calendar} color={THEME.primary}>
           {!data?.monthlyActivity?.length ? <EmptyMsg /> : (
             <ResponsiveContainer width="100%" height={200}>
@@ -245,7 +251,7 @@ export default function AdminOverview() {
       </div>
 
       {/* Bottom Row: Agent Usage + Top Users */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+      <div className="admin-grid-2">
         <ChartCard title="Agent Usage" subtitle="Messages handled per agent" icon={Bot} color={THEME.secondary}>
           {!data?.agentUsage?.length ? <EmptyMsg /> : (
             <div>

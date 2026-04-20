@@ -231,13 +231,13 @@ export default function Dashboard() {
             </div>
 
             {/* Gradient Orbs */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-            <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+            <div className="absolute top-0 -left-20 md:left-0 w-64 h-64 md:w-96 md:h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none -z-10" />
+            <div className="absolute bottom-0 -right-20 md:right-0 w-80 h-80 md:w-[500px] md:h-[500px] bg-purple-500/15 rounded-full blur-3xl animate-pulse pointer-events-none -z-10" style={{ animationDelay: '1s' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse pointer-events-none -z-10" style={{ animationDelay: '2s' }} />
 
             {/* Navigation */}
             <nav className="relative z-20 px-4 sm:px-6 py-4 sm:py-6 border-b border-white/10 backdrop-blur-xl">
-                <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+                <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3 shrink-0">
                         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/50">
                             <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -355,33 +355,33 @@ export default function Dashboard() {
                                         className={`bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 hover:border-blue-500/30 hover:shadow-[0_0_30px_5px_rgba(59,130,246,0.2)] transition-all duration-300 cursor-pointer group animate-fade-in py-0 relative overflow-hidden ${selectedAgent === agent.id ? 'border-blue-500/50 bg-white/10' : ''}`}
                                         style={{ animationDelay: `${idx * 0.1}s` }}
                                     >
-                                        {/* Corner Badges */}
-                                        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end z-20">
-                                            {!agent.isDefault && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    onClick={(e) => handleDeleteAgent(e, agent.id)}
-                                                    className="bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 h-8 w-8 rounded-full shadow-lg shadow-red-500/10"
-                                                    title="Delete Agent"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
-                                            )}
-                                            <Badge variant="success" className="gap-1 px-2 py-0.5 backdrop-blur-md">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                                                {agent.status}
-                                            </Badge>
-                                            <Badge
-                                                className={`px-2 py-0.5 bg-linear-to-r ${agent.color} border-transparent text-white backdrop-blur-md shadow-sm`}
-                                            >
-                                                {agent.isDefault ? "Default" : "Custom"}
-                                            </Badge>
-                                        </div>
-
-                                        <CardHeader className="p-6 pb-0 flex-row items-start justify-between space-y-0">
+                                        <CardHeader className="p-6 pb-0 flex flex-row items-start justify-between space-y-0 relative z-20">
                                             <div className={`w-14 h-14 rounded-xl bg-linear-to-br ${agent.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                                                 <Icon className="w-7 h-7 text-white" />
+                                            </div>
+                                            <div className="flex flex-col gap-2 items-end">
+                                                {!agent.isDefault && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon-xs"
+                                                        onClick={(e) => handleDeleteAgent(e, agent.id)}
+                                                        className="bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 h-8 w-8 rounded-full shadow-lg shadow-red-500/10"
+                                                        title="Delete Agent"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                )}
+                                                <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                                                    <Badge variant="success" className="gap-1 px-2 py-0.5 backdrop-blur-md">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                                        {agent.status}
+                                                    </Badge>
+                                                    <Badge
+                                                        className={`px-2 py-0.5 bg-linear-to-r ${agent.color} border-transparent text-white backdrop-blur-md shadow-sm`}
+                                                    >
+                                                        {agent.isDefault ? "Default" : "Custom"}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                         </CardHeader>
                                         <CardContent className="p-6">

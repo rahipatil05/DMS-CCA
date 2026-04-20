@@ -280,7 +280,7 @@ export default function Landing() {
                             <div className="text-[11px] text-slate-500 mt-px">AI Agent Platform</div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-3 sm:gap-4 shrink-0">
                         <button
                             className="px-3.5 sm:px-5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-300 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-white/[0.09] hover:border-blue-500/30 hover:text-white"
                             onClick={() => navigate("/auth")}
