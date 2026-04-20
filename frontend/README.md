@@ -1,16 +1,60 @@
-# React + Vite
+# DMSM CCA — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> React 19 + Vite + Tailwind CSS v4 frontend for the Multi-Personalized AI Agent Platform.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev       # Development server at http://localhost:5173
+npm run build     # Production build
+npm run preview   # Preview production build
+```
 
-## React Compiler
+## 📁 Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── pages/
+│   ├── Landing.jsx          # Public landing page
+│   ├── Dashboard.jsx        # User home with agent cards
+│   ├── Chat.jsx             # AI chat interface
+│   ├── Analytics.jsx        # Mental wellness dashboard
+│   ├── auth/Auth.jsx        # Login / Signup
+│   └── admin/               # Admin panel + tabs
+│       ├── AdminPanel.jsx
+│       └── tabs/
+│           ├── AdminOverview.jsx
+│           ├── AdminUsers.jsx
+│           ├── AdminAgents.jsx
+│           ├── AdminConversations.jsx
+│           ├── AdminDBChat.jsx
+│           └── AdminSettings.jsx
+├── components/              # Shared UI components
+├── context/AuthContext.jsx  # Auth state provider
+└── store/                   # Zustand state stores
+```
 
-## Expanding the ESLint configuration
+## 🎨 Design System
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Background**: `#060b13` (deep dark navy)
+- **Primary Accent**: `#38bdf8` (sky blue)
+- **Secondary Accent**: `#818cf8` (indigo)
+- **Success**: `#34d399` (emerald)
+- **Warning**: `#fbbf24` (amber)
+- **Danger**: `#f87171` (red)
+- **Typography**: Inter (Google Fonts)
+- **Style**: Glassmorphism — `backdrop-blur` frosted glass cards
+
+## 📱 Responsive Breakpoints
+
+| Breakpoint | Width | Behavior |
+|---|---|---|
+| `xs` (default) | < 640px | Mobile: single column, slide-in sidebars |
+| `sm` | ≥ 640px | Tablet: expanded nav, 2-col layouts |
+| `md` | ≥ 768px | Desktop: full sidebars, multi-column grids |
+
+## 🔗 Backend Connection
+
+All API calls target `http://localhost:5000` in development.
+Authentication uses **HTTP-only JWT cookies** (`credentials: "include"` on all fetches).

@@ -623,7 +623,7 @@ function ChatBox({ agentId }) {
 - Appends messages to existing conversation
 - Detects emotion from user message
 - Returns AI response with emotion data
-- Uses Gemini AI for responses
+- Uses Groq SDK (`llama-3.1-8b-instant`) for responses
 
 ---
 
