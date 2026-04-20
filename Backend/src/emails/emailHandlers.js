@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { ENV } from "../lib/env.js"; // Adjust path if needed
+import { ENV } from "../lib/env.js";
 import { WELCOME_EMAIL_TEMPLATE } from "./emailTemplates.js";
 
 export const sendWelcomeEmail = async (email, fullName) => {
@@ -9,26 +9,22 @@ export const sendWelcomeEmail = async (email, fullName) => {
       return { success: false, message: "Email configuration missing" };
     }
 
-    // Create Nodemailer transporter with improved stability settings
     const transporter = nodemailer.createTransport({
       host: ENV.EMAIL_HOST,
       port: ENV.EMAIL_PORT,
-      secure: ENV.EMAIL_PORT === 465, // true for 465, false for 587
+      secure: ENV.EMAIL_PORT === 465,
       auth: {
         user: ENV.EMAIL_USER,
         pass: ENV.EMAIL_PASS,
       },
-      // Settings to prevent 'Connection closed unexpectedly'
-      tls: {
-        rejectUnauthorized: false // Helps in some network environments
-      },
-      connectionTimeout: 15000, // 15 seconds
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 15000,
       greetingTimeout: 15000,
       socketTimeout: 15000,
     });
 
     const mailOptions = {
-      from: ENV.EMAIL_FROM,
+      from: ENV.EMAIL_FROM || ENV.EMAIL_USER,
       to: email,
       subject: "Welcome to Multi AI Platform! 🚀",
       html: WELCOME_EMAIL_TEMPLATE(fullName, ENV.CLIENT_URL),
@@ -36,7 +32,6 @@ export const sendWelcomeEmail = async (email, fullName) => {
 
     const info = await transporter.sendMail(mailOptions);
     console.log(`Welcome email sent to: ${email}. Message ID: ${info.messageId}`);
-
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending welcome email:", error);

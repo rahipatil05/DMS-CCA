@@ -13,19 +13,17 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "groq-sdk": "^0.9.1",
     "jsonwebtoken": "^9.0.3",
-    "mongodb": "^7.0.0",
     "mongoose": "^9.1.4",
-    "nodemailer": "^8.0.1",
-    "nodemon": "^3.1.11",
-    "ollama": "^0.6.3"
+    "nodemailer": "^8.0.5",
+    "nodemon": "^3.1.11"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",

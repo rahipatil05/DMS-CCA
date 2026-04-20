@@ -2,9 +2,10 @@ import User from "../models/User.model.js";
 import Agent from "../models/Agent.model.js";
 import Conversation from "../models/Conversation.model.js";
 import mongoose from "mongoose";
-import { Ollama } from "ollama";
+import Groq from "groq-sdk";
 
-const ollamaClient = new Ollama({ host: "http://localhost:11434" });
+const groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 
 // ── Existing ──────────────────────────────────────────────────────────────────
@@ -411,22 +412,22 @@ const isDestructiveQuery = (code) =>
 
 export const adminChatQuery = async (req, res) => {
   try {
-    const { question, ollamaModel = "llama3.1" } = req.body;
+    const { question } = req.body;
     if (!question?.trim()) return res.status(400).json({ message: "Question is required" });
 
-    // 1. Ask Ollama to generate a query
+    // 1. Ask Groq to generate a query
     let queryCode = "";
     try {
-      const response = await ollamaClient.generate({
-        model: ollamaModel,
-        prompt: SCHEMA_CONTEXT + question,
-        stream: false,
-        options: { temperature: 0.1, num_predict: 300 }
+      const response = await groqClient.chat.completions.create({
+        model: GROQ_MODEL,
+        messages: [{ role: "user", content: SCHEMA_CONTEXT + question }],
+        temperature: 0.1,
+        max_tokens: 300,
       });
-      queryCode = (response.response || "").trim();
+      queryCode = (response.choices[0]?.message?.content || "").trim();
     } catch (err) {
       return res.status(503).json({
-        message: "Ollama LLM is not available. Make sure Ollama is running with: ollama serve",
+        message: "Groq LLM is not available. Check your GROQ_API_KEY.",
         error: err.message
       });
     }
@@ -507,28 +508,31 @@ Draft agent description to enhance:
 
 export const enhancePrompt = async (req, res) => {
   try {
-    const { draft, agentName = "AI Agent", ollamaModel = "llama3.1" } = req.body;
+    const { draft, agentName = "AI Agent" } = req.body;
     if (!draft?.trim()) return res.status(400).json({ message: "Draft prompt is required" });
 
     let enhanced = "";
     try {
-      const response = await ollamaClient.generate({
-        model: ollamaModel,
-        prompt: ENHANCE_SYSTEM + `Agent Name: ${agentName}\nDraft: ${draft}`,
-        stream: false,
-        options: { temperature: 0.7, num_predict: 500 }
+      const response = await groqClient.chat.completions.create({
+        model: GROQ_MODEL,
+        messages: [{
+          role: "user",
+          content: ENHANCE_SYSTEM + `Agent Name: ${agentName}\nDraft: ${draft}`
+        }],
+        temperature: 0.7,
+        max_tokens: 500,
       });
-      enhanced = (response.response || "").trim();
+      enhanced = (response.choices[0]?.message?.content || "").trim();
     } catch (err) {
       return res.status(503).json({
-        message: "Ollama is not available. Make sure it is running with: ollama serve",
+        message: "Groq AI is not available. Check your GROQ_API_KEY.",
         error: err.message
       });
     }
 
-    if (!enhanced) return res.status(500).json({ message: "Ollama returned an empty response" });
+    if (!enhanced) return res.status(500).json({ message: "Groq returned an empty response" });
 
-    res.json({ enhanced, model: ollamaModel });
+    res.json({ enhanced, model: GROQ_MODEL });
   } catch (error) {
     console.error("enhancePrompt error:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });

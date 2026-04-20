@@ -57,12 +57,10 @@ export const signup = async (req, res) => {
         }
       });
 
-      // Send welcome email asynchronously (don't block response)
-      try {
-        await sendWelcomeEmail(savedUser.email, savedUser.fullName, ENV.CLIENT_URL);
-      } catch (error) {
-        console.error("Failed to send welcome email:", error);
-      }
+      // Send welcome email asynchronously — does not block signup response
+      sendWelcomeEmail(savedUser.email, savedUser.fullName).catch(err =>
+        console.error("Failed to send welcome email:", err)
+      );
     } else {
       res.status(400).json({ message: "Invalid user data" });
     }

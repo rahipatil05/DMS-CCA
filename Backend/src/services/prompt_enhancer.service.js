@@ -1,10 +1,11 @@
-import { Ollama } from 'ollama';
+import Groq from 'groq-sdk';
 
-const ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 export const enhancePrompt = async (prompt) => {
     try {
-        const model = "llama3.1:latest";
 
         const instruction = `
 You are an expert AI Prompt Engineer. Your task is to rewrite the given AI system prompt to be more detailed, professional, and effective.
@@ -23,18 +24,15 @@ INPUT PROMPT:
 ENHANCED PROMPT:
 `;
 
-        const response = await ollama.chat({
-            model: model,
+        const response = await groq.chat.completions.create({
+            model: GROQ_MODEL,
             messages: [{ role: 'user', content: instruction }],
-            options: {
-                temperature: 0.7,
-            },
-            stream: false,
+            temperature: 0.7,
         });
 
-        return response.message.content.trim();
+        return (response.choices[0]?.message?.content || "").trim();
     } catch (error) {
-        console.error("❌ Ollama AI Enhancement Error:", {
+        console.error("❌ Groq AI Enhancement Error:", {
             message: error.message,
             stack: error.stack,
             promptSnippet: prompt.substring(0, 50) + "..."

@@ -388,6 +388,14 @@ export default function Analytics() {
                 .anim { animation: fadeIn 0.5s ease forwards; }
                 .tab-btn:hover { background: rgba(56,189,248,0.1) !important; }
                 .back-btn:hover { background: rgba(56,189,248,0.12) !important; }
+                .analytics-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+                .analytics-wellbeing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                @media (max-width: 640px) {
+                    .analytics-grid-2 { grid-template-columns: 1fr !important; }
+                    .analytics-wellbeing-grid { grid-template-columns: 1fr !important; }
+                    .analytics-journal-label { display: none; }
+                    .analytics-refresh-label { display: none; }
+                }
             `}</style>
 
             {/* ── Navigation ──────────────────────────────────────────────────── */}
@@ -396,7 +404,7 @@ export default function Analytics() {
                 borderBottom: "1px solid rgba(255,255,255,0.07)",
                 backdropFilter: "blur(20px)",
                 background: "rgba(6,11,19,0.85)",
-                padding: "0 24px"
+                padding: "0 12px"
             }}>
                 <div style={{
                     maxWidth: "1280px", margin: "0 auto", height: "62px",
@@ -432,19 +440,19 @@ export default function Analytics() {
                             display: "flex", alignItems: "center", gap: "6px",
                             color: THEME.bg, fontSize: "12px", background: THEME.accent, fontWeight: 600,
                             border: `1px solid ${THEME.accent}80`, borderRadius: "8px",
-                            padding: "6px 14px", cursor: isGeneratingJournal ? "not-allowed" : "pointer", transition: "all 0.2s",
+                            padding: "6px 10px", cursor: isGeneratingJournal ? "not-allowed" : "pointer", transition: "all 0.2s",
                             opacity: isGeneratingJournal ? 0.7 : 1, boxShadow: `0 0 15px ${THEME.accent}40`
                         }}>
                             {isGeneratingJournal ? <Loader2 size={14} className="animate-spin" /> : <BookOpen size={14} />}
-                            {isGeneratingJournal ? "Writing..." : "Weekly Journal"}
+                            <span className="analytics-journal-label">{isGeneratingJournal ? "Writing..." : "Weekly Journal"}</span>
                         </button>
                         <button onClick={() => setRefreshKey(k => k + 1)} style={{
                             display: "flex", alignItems: "center", gap: "6px",
                             color: THEME.primary, fontSize: "12px", background: `${THEME.primary}12`,
                             border: `1px solid ${THEME.primary}30`, borderRadius: "8px",
-                            padding: "6px 12px", cursor: "pointer", transition: "all 0.2s"
+                            padding: "6px 10px", cursor: "pointer", transition: "all 0.2s"
                         }}>
-                            <RefreshCw size={13} /> Refresh
+                            <RefreshCw size={13} /><span className="analytics-refresh-label"> Refresh</span>
                         </button>
                     </div>
                 </div>
@@ -479,7 +487,7 @@ export default function Analytics() {
             </div>
 
             {/* ── Content ─────────────────────────────────────────────────────── */}
-            <main style={{ maxWidth: "1280px", margin: "0 auto", padding: "28px 24px", position: "relative", zIndex: 1 }}>
+            <main style={{ maxWidth: "1280px", margin: "0 auto", padding: "20px 12px", position: "relative", zIndex: 1 }}>
 
                 {/* ══ OVERVIEW TAB ═══════════════════════════════════════════════ */}
                 {activeTab === "overview" && (
@@ -501,7 +509,7 @@ export default function Analytics() {
                         </div>
 
                         {/* Monthly Overview + Emotion Pie */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+                        <div className="analytics-grid-2">
                             <ChartCard title="6-Month Overview" subtitle="Messages & conversations per month" icon={Calendar} color={THEME.primary}>
                                 {!hasData ? <EmptyState /> : (
                                     <ResponsiveContainer width="100%" height={200}>
@@ -680,7 +688,7 @@ export default function Analytics() {
                             border: `1px solid ${THEME.cardBorder}`, borderRadius: "16px", padding: "20px"
                         }}>
                             <SectionHeader icon={Info} title="Wellbeing Insights" subtitle="Based on your conversation patterns" color="#f472b6" />
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                            <div className="analytics-wellbeing-grid">
                                 {[
                                     {
                                         label: "Positive Ratio",
@@ -745,7 +753,7 @@ export default function Analytics() {
                 {activeTab === "activity" && (
                     <div className="anim">
                         {/* Hourly + Weekly */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+                        <div className="analytics-grid-2">
                             <ChartCard title="Messages by Hour" subtitle="When you're most active" icon={Clock} color={THEME.primary}>
                                 {!hasData ? <EmptyState /> : (
                                     <ResponsiveContainer width="100%" height={200}>

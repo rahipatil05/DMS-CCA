@@ -42,6 +42,7 @@ export default function AdminPanel() {
   const { authUser, logout: contextLogout } = useAuth();
   const [activeTab, setActiveTab]   = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [stats, setStats]           = useState(null);
 
   // Quick badge counts shown in sidebar
@@ -87,23 +88,46 @@ export default function AdminPanel() {
         .admin-nav-item:hover { background: rgba(255,255,255,0.06) !important; }
         .admin-nav-item.active { background: rgba(56,189,248,0.1) !important; }
         .tab-fade { animation: fadeSlide 0.35s ease forwards; }
+        @media (max-width: 767px) {
+          .admin-sidebar { position: fixed !important; z-index: 50; height: 100vh; top: 0; left: 0; }
+          .admin-sidebar-overlay { display: block; }
+        }
+        @media (min-width: 768px) {
+          .admin-sidebar-overlay { display: none !important; }
+        }
       `}</style>
 
+      {/* Mobile Overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="admin-sidebar-overlay"
+          onClick={() => setMobileSidebarOpen(false)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
+            zIndex: 49, backdropFilter: "blur(4px)"
+          }}
+        />
+      )}
+
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-      <aside style={{
-        width: sidebarOpen ? "240px" : "64px",
-        minHeight: "100vh",
-        background: THEME.sidebar,
-        borderRight: `1px solid ${THEME.cardBorder}`,
-        display: "flex",
-        flexDirection: "column",
-        transition: "width 0.3s cubic-bezier(.4,0,.2,1)",
-        overflow: "hidden",
-        flexShrink: 0,
-        position: "sticky",
-        top: 0,
-        zIndex: 40
-      }}>
+      <aside
+        className="admin-sidebar"
+        style={{
+          width: sidebarOpen ? "240px" : "64px",
+          minHeight: "100vh",
+          background: THEME.sidebar,
+          borderRight: `1px solid ${THEME.cardBorder}`,
+          display: "flex",
+          flexDirection: "column",
+          transition: "width 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.4,0,.2,1)",
+          overflow: "hidden",
+          flexShrink: 0,
+          top: 0,
+          zIndex: 40,
+          transform: mobileSidebarOpen ? "translateX(0)" : undefined
+        }}
+        // On initial mobile, hide via CSS class logic above
+      >
         {/* Logo */}
         <div style={{
           padding: "20px 16px",
@@ -249,12 +273,33 @@ export default function AdminPanel() {
           backdropFilter: "blur(20px)",
           display: "flex",
           alignItems: "center",
-          padding: "0 24px",
+          padding: "0 16px",
           gap: "12px",
           position: "sticky",
           top: 0,
           zIndex: 30
         }}>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileSidebarOpen(o => !o)}
+            style={{
+              display: "none", // shown via CSS media query below
+              alignItems: "center", justifyContent: "center",
+              width: "32px", height: "32px",
+              background: THEME.mutedBg,
+              border: `1px solid ${THEME.cardBorder}`,
+              borderRadius: "8px", color: THEME.muted, cursor: "pointer"
+            }}
+            className="md-hamburger"
+          >
+            <Menu size={16} />
+          </button>
+          <style>{`
+            @media (max-width: 767px) {
+              .md-hamburger { display: flex !important; }
+              .admin-sidebar { transform: ${mobileSidebarOpen ? 'translateX(0)' : 'translateX(-100%)'}; width: 240px !important; }
+            }
+          `}</style>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: "15px", fontWeight: 700, color: "#f1f5f9" }}>
               {NAV_ITEMS.find(n => n.id === activeTab)?.label}

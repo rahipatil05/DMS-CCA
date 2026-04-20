@@ -246,29 +246,27 @@ export default function Dashboard() {
             <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
 
             {/* Navigation */}
-            <nav className="relative z-20 px-6 py-6 border-b border-white/10 backdrop-blur-xl">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/50">
-                            <Brain className="w-6 h-6 text-white" />
+            <nav className="relative z-20 px-4 sm:px-6 py-4 sm:py-6 border-b border-white/10 backdrop-blur-xl">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/50">
+                            <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold leading-tight">
-                                Multi-Personalized
-                            </h1>
+                        <div className="hidden sm:block">
+                            <h1 className="text-lg sm:text-xl font-bold leading-tight">Multi-Personalized</h1>
                             <p className="text-xs text-blue-400 font-medium whitespace-nowrap">AI Agent Platform</p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => navigate('/analytics')}
-                            className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all duration-300 gap-2"
+                            className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all duration-300 gap-2 px-2 sm:px-3"
                         >
                             <BarChart3 className="w-4 h-4 text-blue-400" />
-                            <span className="text-sm text-gray-300">Analytics</span>
+                            <span className="hidden sm:inline text-sm text-gray-300">Analytics</span>
                         </Button>
                         <Button
                             variant="outline"
@@ -276,7 +274,7 @@ export default function Dashboard() {
                             onClick={() => setIsProfileModalOpen(true)}
                             className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all duration-300"
                         >
-                            <Settings className="w-5 h-5 text-gray-300" />
+                            <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300" />
                         </Button>
                         <Button
                             variant="outline"
@@ -284,10 +282,10 @@ export default function Dashboard() {
                             onClick={handleLogout}
                             className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-red-500/30 transition-all duration-300"
                         >
-                            <LogOut className="w-5 h-5 text-gray-300" />
+                            <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300" />
                         </Button>
-                        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-                            <div className="text-3xl">👤</div>
+                        <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                            <div className="text-2xl">👤</div>
                             <div>
                                 <p className="font-semibold text-sm">Hello, {userName}!</p>
                                 <p className="text-xs text-gray-400">User Dashboard</p>
@@ -298,19 +296,19 @@ export default function Dashboard() {
             </nav>
 
             {/* Main Content */}
-            <main className="relative z-10 px-6 py-8 max-w-7xl mx-auto">
+            <main className="relative z-10 px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto">
 
                 {/* Welcome Section */}
-                <div className="mb-8 animate-fade-in">
+                <div className="mb-6 sm:mb-8 animate-fade-in">
                     {error && (
                         <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
                             <p className="text-red-400 text-sm">⚠️ {error}</p>
                         </div>
                     )}
                     <div className="flex items-center gap-2 mb-2">
-                        <h2 className="text-4xl font-bold">Welcome back, {userName}! 👋</h2>
+                        <h2 className="text-2xl sm:text-4xl font-bold">Welcome back, {userName}! 👋</h2>
                     </div>
-                    <p className="text-gray-400 text-lg">Ready to continue your AI journey today?</p>
+                    <p className="text-gray-400 text-sm sm:text-lg">Ready to continue your AI journey today?</p>
                 </div>
 
                 {/* Stats Grid */}
@@ -342,21 +340,22 @@ export default function Dashboard() {
 
                     {/* AI Agents Section */}
                     <div>
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
                             <div>
-                                <h3 className="text-2xl font-bold mb-1">Your AI Agents</h3>
-                                <p className="text-gray-400 text-sm">Choose an agent to start chatting</p>
+                                <h3 className="text-xl sm:text-2xl font-bold mb-1">Your AI Agents</h3>
+                                <p className="text-gray-400 text-xs sm:text-sm">Choose an agent to start chatting</p>
                             </div>
                             <Button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 font-semibold"
+                                className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 font-semibold shrink-0 text-sm px-3"
                             >
                                 <Plus className="w-4 h-4" />
-                                Create New
+                                <span className="hidden sm:inline">Create New</span>
+                                <span className="sm:hidden">Create</span>
                             </Button>
                         </div>
 
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {aiAgents.map((agent, idx) => {
                                 const Icon = agent.icon;
                                 return (

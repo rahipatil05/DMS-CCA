@@ -1,13 +1,14 @@
-import { Ollama } from 'ollama';
+import Groq from 'groq-sdk';
 
-const ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 export const getMentalWellnessJournal = async (
     conversationHistoryText,
     userProfile = null
 ) => {
     try {
-        const model = "llama3.1:latest";
 
         let userContext = "";
         if (userProfile) {
@@ -48,21 +49,18 @@ ${userContext}
 
         const userPrompt = `Here is the raw text of all conversations from the last 7 days:\n\n${conversationHistoryText}\n\nPlease generate my Weekly Mental Wellness Journal now.`;
 
-        const response = await ollama.chat({
-            model: model,
+        const response = await groq.chat.completions.create({
+            model: GROQ_MODEL,
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
             ],
-            options: {
-                temperature: 0.6,
-                top_p: 0.9,
-                num_predict: 250 // Hard limit to ensure very fast completion
-            },
-            stream: false,
+            temperature: 0.6,
+            top_p: 0.9,
+            max_tokens: 700,
         });
 
-        return response.message.content;
+        return response.choices[0]?.message?.content || "";
     } catch (err) {
         console.error("Error generating wellness journal:", err);
         throw new Error("Failed to connect to the AI engine for journal generation.");

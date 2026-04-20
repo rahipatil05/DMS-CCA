@@ -1,7 +1,7 @@
 import Chat from "../models/Conversation.model.js";
 import Agent from "../models/Agent.model.js";
 import { detectEmotion } from "../services/emotion.service.js";
-import { getOllamaReply } from "../services/ollama.service.js";
+import { getOllamaReply } from "../services/groq.service.js";
 
 export const sendMessage = async (req, res) => {
   try {

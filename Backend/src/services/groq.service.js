@@ -1,6 +1,8 @@
-import { Ollama } from 'ollama';
+import Groq from 'groq-sdk';
 
-const ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 export const getOllamaReply = async (
     systemPrompt,
@@ -10,8 +12,6 @@ export const getOllamaReply = async (
     preferredLength = "medium"
 ) => {
     try {
-        const model = "llama3.1:latest";
-
         // Construct User Context string
         let userContext = "";
         if (userProfile) {
@@ -74,19 +74,16 @@ Only include the block if you actually find new information..
             })),
         ];
 
-        const response = await ollama.chat({
-            model: model,
+        const response = await groq.chat.completions.create({
+            model: GROQ_MODEL,
             messages: formattedMessages,
-            options: {
-                temperature: emotion === "sad" || emotion === "lonely" ? 0.4 : 0.7,
-                top_p: 0.9,
-            },
-            stream: false,
+            temperature: emotion === "sad" || emotion === "lonely" ? 0.4 : 0.7,
+            top_p: 0.9,
         });
 
-        return response.message.content;
+        return response.choices[0]?.message?.content || "";
     } catch (err) {
-        console.error("Ollama API error:", err);
+        console.error("Groq API error:", err);
         return "I'm here with you. Something went wrong on my side, but we can keep talking.";
     }
 };

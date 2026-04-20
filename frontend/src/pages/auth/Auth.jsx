@@ -81,10 +81,10 @@ export default function AuthPage() {
               <span className="text-sm font-medium text-blue-300">AI-Powered Platform</span>
             </div>
 
-            <h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient">
+            <h1 className="text-3xl sm:text-5xl font-bold mb-4 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient">
               Your AI Companion
             </h1>
-            <p className="text-lg text-gray-300 font-light">
+            <p className="text-sm sm:text-lg text-gray-300 font-light">
               Connect with specialized agents designed to understand you
             </p>
 
