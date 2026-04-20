@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   LayoutDashboard, Users, Bot, MessageSquare, Database,
-  Settings, LogOut, Brain, ChevronRight, Shield, Menu, X,
-  Bell, Search
+  Settings, LogOut, Shield, Menu, X, Search, ChevronRight
 } from "lucide-react";
 import AdminOverview      from "./tabs/AdminOverview";
 import AdminUsers         from "./tabs/AdminUsers";
@@ -13,39 +12,32 @@ import AdminConversations from "./tabs/AdminConversations";
 import AdminDBChat        from "./tabs/AdminDBChat";
 import AdminSettings      from "./tabs/AdminSettings";
 
-const THEME = {
-  bg:           "#060b13",
-  sidebar:      "#0a1020",
-  card:         "#0d1525",
-  cardBorder:   "rgba(255,255,255,0.08)",
-  primary:      "#38bdf8",
-  primaryGlow:  "rgba(56,189,248,0.15)",
-  secondary:    "#818cf8",
-  accent:       "#34d399",
-  danger:       "#f87171",
-  warning:      "#fbbf24",
-  muted:        "rgba(255,255,255,0.45)",
-  mutedBg:      "rgba(255,255,255,0.04)",
-};
-
 const NAV_ITEMS = [
-  { id: "overview",       label: "Overview",       icon: LayoutDashboard, color: THEME.primary },
-  { id: "users",          label: "Users",           icon: Users,          color: THEME.secondary },
-  { id: "agents",         label: "Agents",          icon: Bot,            color: THEME.accent },
-  { id: "conversations",  label: "Conversations",   icon: MessageSquare,  color: THEME.warning },
-  { id: "dbchat",         label: "DB Chatbot",      icon: Database,       color: "#f472b6" },
-  { id: "settings",       label: "Settings",        icon: Settings,       color: THEME.muted },
+  { id: "overview",      label: "Overview",      icon: LayoutDashboard, color: "#38bdf8" },
+  { id: "users",         label: "Users",          icon: Users,           color: "#818cf8" },
+  { id: "agents",        label: "Agents",         icon: Bot,             color: "#34d399" },
+  { id: "conversations", label: "Conversations",  icon: MessageSquare,   color: "#fbbf24" },
+  { id: "dbchat",        label: "DB Chatbot",     icon: Database,        color: "#f472b6" },
+  { id: "settings",      label: "Settings",       icon: Settings,        color: "rgba(255,255,255,0.45)" },
 ];
 
-export default function AdminPanel() {
-  const navigate = useNavigate();
-  const { authUser, logout: contextLogout } = useAuth();
-  const [activeTab, setActiveTab]   = useState("overview");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [stats, setStats]           = useState(null);
+const TAB_MAP = {
+  overview:      AdminOverview,
+  users:         AdminUsers,
+  agents:        AdminAgents,
+  conversations: AdminConversations,
+  dbchat:        AdminDBChat,
+  settings:      AdminSettings,
+};
 
-  // Quick badge counts shown in sidebar
+export default function AdminPanel() {
+  const navigate  = useNavigate();
+  const { authUser, logout: contextLogout } = useAuth();
+  const [activeTab, setActiveTab]           = useState("overview");
+  const [sidebarOpen, setSidebarOpen]       = useState(true);   // desktop collapse
+  const [mobileOpen, setMobileOpen]         = useState(false);  // mobile drawer
+  const [stats, setStats]                   = useState(null);
+
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/stats", { credentials: "include" })
       .then(r => r.json())
@@ -70,285 +62,210 @@ export default function AdminPanel() {
     return null;
   };
 
-  const ActiveComponent = {
-    overview:      AdminOverview,
-    users:         AdminUsers,
-    agents:        AdminAgents,
-    conversations: AdminConversations,
-    dbchat:        AdminDBChat,
-    settings:      AdminSettings,
-  }[activeTab] || AdminOverview;
+  const ActiveComponent = TAB_MAP[activeTab] || AdminOverview;
+
+  const handleNavClick = (id) => {
+    setActiveTab(id);
+    setMobileOpen(false); // close drawer on mobile after tap
+  };
+
+  // Sidebar content — shared between desktop & mobile drawer
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Logo + close (mobile) / collapse (desktop) */}
+      <div className="flex items-center justify-between px-4 py-4 border-b border-white/8 min-h-[64px]">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg,#38bdf8,#818cf8)", boxShadow: "0 0 20px #38bdf840" }}>
+            <Shield size={17} color="#fff" />
+          </div>
+          {(sidebarOpen || mobileOpen) && (
+            <div className="overflow-hidden">
+              <p className="text-sm font-bold text-slate-100 whitespace-nowrap">Admin Panel</p>
+              <p className="text-[10px] text-sky-400 whitespace-nowrap">Multi AI Platform</p>
+            </div>
+          )}
+        </div>
+        {/* Mobile: X button | Desktop: collapse arrow */}
+        <button
+          onClick={() => mobileOpen ? setMobileOpen(false) : setSidebarOpen(o => !o)}
+          className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-all shrink-0"
+        >
+          {mobileOpen ? <X size={16} /> : sidebarOpen ? <X size={14} /> : <Menu size={14} />}
+        </button>
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+        {NAV_ITEMS.map(item => {
+          const Icon   = item.icon;
+          const active = activeTab === item.id;
+          const badge  = badgeFor(item.id);
+          const show   = sidebarOpen || mobileOpen;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleNavClick(item.id)}
+              title={!show ? item.label : undefined}
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl border transition-all duration-200 cursor-pointer group ${
+                active
+                  ? "border-white/10 bg-white/6"
+                  : "border-transparent hover:bg-white/5"
+              } ${show ? "justify-start" : "justify-center"}`}
+              style={{ color: active ? item.color : "rgba(255,255,255,0.45)" }}
+            >
+              <Icon size={17} className="shrink-0" />
+              {show && (
+                <>
+                  <span className="text-sm flex-1 text-left" style={{ fontWeight: active ? 600 : 400 }}>
+                    {item.label}
+                  </span>
+                  {badge != null && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border"
+                      style={{
+                        background: active ? `${item.color}20` : "rgba(255,255,255,0.05)",
+                        color:      active ? item.color : "rgba(255,255,255,0.4)",
+                        borderColor: active ? `${item.color}40` : "rgba(255,255,255,0.08)"
+                      }}>
+                      {badge}
+                    </span>
+                  )}
+                  {active && <ChevronRight size={13} className="opacity-50 shrink-0" />}
+                </>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* User profile at bottom */}
+      <div className="p-3 border-t border-white/8">
+        {(sidebarOpen || mobileOpen) ? (
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/4">
+            <div className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-sm border"
+              style={{ background: "rgba(56,189,248,0.1)", borderColor: "rgba(56,189,248,0.2)" }}>
+              👤
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-slate-100 truncate">
+                {authUser?.fullName?.split(" ")[0] || "Admin"}
+              </p>
+              <p className="text-[10px] text-sky-400">Administrator</p>
+            </div>
+            <button onClick={handleLogout} title="Logout"
+              className="p-1 rounded-md text-white/40 hover:text-white transition-all shrink-0">
+              <LogOut size={14} />
+            </button>
+          </div>
+        ) : (
+          <button onClick={handleLogout} title="Logout"
+            className="w-full flex items-center justify-center p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all">
+            <LogOut size={16} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: THEME.bg, fontFamily: "'Inter', system-ui, sans-serif", color: "#e2e8f0" }}>
+    <div className="flex h-[100dvh] overflow-hidden font-['Inter',system-ui,sans-serif]"
+      style={{ background: "#060b13", color: "#e2e8f0" }}>
+
+      {/* ── Keyframe styles ─────────────────────────────────── */}
       <style>{`
-        @keyframes fadeSlide { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .admin-nav-item:hover { background: rgba(255,255,255,0.06) !important; }
-        .admin-nav-item.active { background: rgba(56,189,248,0.1) !important; }
-        .tab-fade { animation: fadeSlide 0.35s ease forwards; }
-        @media (max-width: 767px) {
-          .admin-sidebar { position: fixed !important; z-index: 50; height: 100vh; top: 0; left: 0; }
-          .admin-sidebar-overlay { display: block; }
-        }
-        @media (min-width: 768px) {
-          .admin-sidebar-overlay { display: none !important; }
-        }
+        .tab-fade { animation: fadeSlide 0.3s ease forwards; }
       `}</style>
 
-      {/* Mobile Overlay */}
-      {mobileSidebarOpen && (
+      {/* ── Mobile backdrop ──────────────────────────────────── */}
+      {mobileOpen && (
         <div
-          className="admin-sidebar-overlay"
-          onClick={() => setMobileSidebarOpen(false)}
-          style={{
-            position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
-            zIndex: 49, backdropFilter: "blur(4px)"
-          }}
+          className="fixed inset-0 bg-black/70 z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+      {/* ── Desktop Sidebar (sticky, collapsible) ────────────── */}
       <aside
-        className="admin-sidebar"
+        className="hidden md:flex flex-col shrink-0 border-r border-white/8 transition-all duration-300 overflow-hidden"
         style={{
           width: sidebarOpen ? "240px" : "64px",
-          minHeight: "100vh",
-          background: THEME.sidebar,
-          borderRight: `1px solid ${THEME.cardBorder}`,
-          display: "flex",
-          flexDirection: "column",
-          transition: "width 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.4,0,.2,1)",
-          overflow: "hidden",
-          flexShrink: 0,
-          top: 0,
-          zIndex: 40,
-          transform: mobileSidebarOpen ? "translateX(0)" : undefined
+          background: "#0a1020",
+          borderColor: "rgba(255,255,255,0.08)"
         }}
-        // On initial mobile, hide via CSS class logic above
       >
-        {/* Logo */}
-        <div style={{
-          padding: "20px 16px",
-          borderBottom: `1px solid ${THEME.cardBorder}`,
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          minHeight: "70px"
-        }}>
-          <div style={{
-            width: "36px", height: "36px", borderRadius: "10px", flexShrink: 0,
-            background: `linear-gradient(135deg, ${THEME.primary}, ${THEME.secondary})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: `0 0 20px ${THEME.primary}40`
-          }}>
-            <Shield size={18} color="#fff" />
-          </div>
-          {sidebarOpen && (
-            <div style={{ overflow: "hidden" }}>
-              <p style={{ fontSize: "14px", fontWeight: 700, color: "#f1f5f9", whiteSpace: "nowrap" }}>Admin Panel</p>
-              <p style={{ fontSize: "10px", color: THEME.primary, whiteSpace: "nowrap" }}>Multi Personalized AI Agent Platform</p>
-            </div>
-          )}
-        </div>
-
-        {/* Toggle button */}
-        <button
-          onClick={() => setSidebarOpen(o => !o)}
-          style={{
-            margin: "8px auto",
-            width: "32px", height: "32px",
-            background: THEME.mutedBg,
-            border: `1px solid ${THEME.cardBorder}`,
-            borderRadius: "8px",
-            color: THEME.muted,
-            cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.2s"
-          }}
-        >
-          {sidebarOpen ? <X size={15} /> : <Menu size={15} />}
-        </button>
-
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: "8px" }}>
-          {NAV_ITEMS.map(item => {
-            const Icon  = item.icon;
-            const active = activeTab === item.id;
-            const badge  = badgeFor(item.id);
-            return (
-              <button
-                key={item.id}
-                className={`admin-nav-item${active ? " active" : ""}`}
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "10px 10px",
-                  borderRadius: "10px",
-                  border: active ? `1px solid ${item.color}30` : "1px solid transparent",
-                  background: active ? `${item.color}10` : "transparent",
-                  color: active ? item.color : THEME.muted,
-                  cursor: "pointer",
-                  marginBottom: "2px",
-                  transition: "all 0.2s",
-                  justifyContent: sidebarOpen ? "flex-start" : "center",
-                  position: "relative"
-                }}
-                title={!sidebarOpen ? item.label : undefined}
-              >
-                <Icon size={17} style={{ flexShrink: 0 }} />
-                {sidebarOpen && (
-                  <>
-                    <span style={{ fontSize: "13px", fontWeight: active ? 600 : 400, flex: 1, textAlign: "left" }}>{item.label}</span>
-                    {badge != null && (
-                      <span style={{
-                        fontSize: "10px", fontWeight: 700,
-                        background: active ? `${item.color}20` : THEME.mutedBg,
-                        color: active ? item.color : THEME.muted,
-                        border: `1px solid ${active ? item.color + "40" : THEME.cardBorder}`,
-                        borderRadius: "20px",
-                        padding: "1px 7px",
-                        minWidth: "22px",
-                        textAlign: "center"
-                      }}>{badge}</span>
-                    )}
-                    {active && <ChevronRight size={13} style={{ opacity: 0.6 }} />}
-                  </>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Admin Profile */}
-        <div style={{
-          padding: "12px",
-          borderTop: `1px solid ${THEME.cardBorder}`
-        }}>
-          {sidebarOpen ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px", borderRadius: "10px", background: THEME.mutedBg }}>
-              <div style={{
-                width: "32px", height: "32px", borderRadius: "8px",
-                background: `linear-gradient(135deg, ${THEME.primary}30, ${THEME.secondary}30)`,
-                border: `1px solid ${THEME.primary}30`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "14px", flexShrink: 0
-              }}>👤</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: "12px", fontWeight: 600, color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {authUser?.fullName?.split(" ")[0] || "Admin"}
-                </p>
-                <p style={{ fontSize: "10px", color: THEME.primary }}>Administrator</p>
-              </div>
-              <button onClick={handleLogout} title="Logout" style={{
-                background: "transparent", border: "none", color: THEME.muted,
-                cursor: "pointer", padding: "4px", borderRadius: "6px", flexShrink: 0
-              }}>
-                <LogOut size={14} />
-              </button>
-            </div>
-          ) : (
-            <button onClick={handleLogout} title="Logout" style={{
-              width: "100%", background: "transparent", border: "none",
-              color: THEME.muted, cursor: "pointer", padding: "8px", borderRadius: "8px",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <LogOut size={16} />
-            </button>
-          )}
-        </div>
+        <SidebarContent />
       </aside>
 
-      {/* ── Main ────────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
-        {/* Top-bar */}
-        <header style={{
-          height: "62px",
-          borderBottom: `1px solid ${THEME.cardBorder}`,
-          background: "rgba(6,11,19,0.9)",
-          backdropFilter: "blur(20px)",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 16px",
-          gap: "12px",
-          position: "sticky",
-          top: 0,
-          zIndex: 30
-        }}>
-          {/* Mobile hamburger */}
+      {/* ── Mobile Sidebar (fixed drawer) ───────────────────── */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 flex flex-col w-64
+          md:hidden
+          transition-transform duration-300 ease-in-out
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+          border-r border-white/8
+        `}
+        style={{ background: "#0a1020" }}
+      >
+        <SidebarContent />
+      </aside>
+
+      {/* ── Main content ─────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        {/* Top bar */}
+        <header className="shrink-0 h-14 sm:h-16 flex items-center gap-3 px-4 sm:px-5 sticky top-0 z-30 border-b border-white/8"
+          style={{ background: "rgba(6,11,19,0.9)", backdropFilter: "blur(20px)" }}>
+
+          {/* Hamburger — mobile only */}
           <button
-            onClick={() => setMobileSidebarOpen(o => !o)}
-            style={{
-              display: "none", // shown via CSS media query below
-              alignItems: "center", justifyContent: "center",
-              width: "32px", height: "32px",
-              background: THEME.mutedBg,
-              border: `1px solid ${THEME.cardBorder}`,
-              borderRadius: "8px", color: THEME.muted, cursor: "pointer"
-            }}
-            className="md-hamburger"
+            onClick={() => setMobileOpen(o => !o)}
+            className="md:hidden p-1.5 rounded-lg border border-white/10 text-white/50 hover:text-white hover:bg-white/8 transition-all"
           >
-            <Menu size={16} />
+            <Menu size={17} />
           </button>
-          <style>{`
-            @media (max-width: 767px) {
-              .md-hamburger { display: flex !important; }
-              .admin-sidebar { transform: ${mobileSidebarOpen ? 'translateX(0)' : 'translateX(-100%)'}; width: 240px !important; }
-            }
-          `}</style>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: "15px", fontWeight: 700, color: "#f1f5f9" }}>
+
+          {/* Title */}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-100 truncate">
               {NAV_ITEMS.find(n => n.id === activeTab)?.label}
             </p>
-            <p style={{ fontSize: "10px", color: THEME.muted }}>Admin Control Center</p>
+            <p className="text-[10px] hidden sm:block" style={{ color: "rgba(255,255,255,0.4)" }}>
+              Admin Control Center
+            </p>
           </div>
 
-          {/* Search hint */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: "8px",
-            background: THEME.mutedBg, border: `1px solid ${THEME.cardBorder}`,
-            borderRadius: "8px", padding: "6px 12px"
-          }}>
-            <Search size={13} color={THEME.muted} />
-            <span style={{ fontSize: "12px", color: THEME.muted }}>Search within tab…</span>
+          {/* Search chip — hidden on very small screens */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/8 bg-white/4">
+            <Search size={12} style={{ color: "rgba(255,255,255,0.4)" }} />
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Search…</span>
           </div>
 
           {/* Admin badge */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: `${THEME.primary}12`,
-            border: `1px solid ${THEME.primary}30`,
-            borderRadius: "8px", padding: "6px 12px"
-          }}>
-            <Shield size={13} color={THEME.primary} />
-            <span style={{ fontSize: "12px", color: THEME.primary, fontWeight: 600 }}>Admin</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border"
+            style={{ background: "rgba(56,189,248,0.08)", borderColor: "rgba(56,189,248,0.2)" }}>
+            <Shield size={12} color="#38bdf8" />
+            <span className="text-xs font-semibold text-sky-400 hidden sm:inline">Admin</span>
           </div>
         </header>
 
-        {/* Content */}
-        <main style={{ flex: 1, overflow: "auto", padding: "24px" }} key={activeTab} className="tab-fade">
+        {/* Tab content */}
+        <main
+          key={activeTab}
+          className="tab-fade flex-1 overflow-auto p-4 sm:p-6"
+        >
           <ActiveComponent />
         </main>
       </div>
 
-      {/* Background orbs */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-        <div style={{
-          position: "absolute", top: "-80px", left: "200px",
-          width: "400px", height: "400px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(56,189,248,0.05) 0%, transparent 70%)",
-          animation: "pulse 6s ease-in-out infinite"
-        }} />
-        <div style={{
-          position: "absolute", bottom: "-100px", right: "100px",
-          width: "500px", height: "500px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(129,140,248,0.04) 0%, transparent 70%)",
-          animation: "pulse 8s ease-in-out infinite 2s"
-        }} />
+      {/* Background glow orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute -top-20 left-48 w-96 h-96 rounded-full opacity-50"
+          style={{ background: "radial-gradient(circle,rgba(56,189,248,0.06) 0%,transparent 70%)", animation: "pulse 6s ease-in-out infinite" }} />
+        <div className="absolute -bottom-24 right-24 w-[500px] h-[500px] rounded-full opacity-50"
+          style={{ background: "radial-gradient(circle,rgba(129,140,248,0.05) 0%,transparent 70%)", animation: "pulse 8s ease-in-out infinite 2s" }} />
       </div>
     </div>
   );

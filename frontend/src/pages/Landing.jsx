@@ -269,47 +269,49 @@ export default function Landing() {
                 style={{ transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px)` }} />
 
             {/* ═══════ NAVIGATION ═══════ */}
-            <nav className={`fixed top-0 left-0 right-0 z-[100] px-6 py-4 transition-all duration-300 ${navScrolled ? "bg-[rgba(6,11,19,0.85)] backdrop-blur-[20px] shadow-[0_1px_0_rgba(255,255,255,0.06)]" : ""}`}>
-                <div className="max-w-[1200px] mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)] text-white">
-                            <Brain size={20} />
+            <nav className={`fixed top-0 left-0 right-0 z-[100] px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 ${navScrolled ? "bg-[rgba(6,11,19,0.85)] backdrop-blur-[20px] shadow-[0_1px_0_rgba(255,255,255,0.06)]" : ""}`}>
+                <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)] text-white">
+                            <Brain size={18} />
                         </div>
-                        <div>
-                            <div className="text-[15px] font-bold text-white">Multi-Personalized</div>
+                        <div className="hidden sm:block">
+                            <div className="text-[14px] font-bold text-white whitespace-nowrap">Multi-Personalized</div>
                             <div className="text-[11px] text-slate-500 mt-px">AI Agent Platform</div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2 shrink-0">
                         <button
-                            className="px-5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-300 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-white/[0.09] hover:border-blue-500/30 hover:text-white"
+                            className="px-3.5 sm:px-5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-300 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-white/[0.09] hover:border-blue-500/30 hover:text-white"
                             onClick={() => navigate("/auth")}
                         >
                             Sign In
                         </button>
                         <button
-                            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white text-sm font-semibold cursor-pointer border-none transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-px hover:shadow-[0_0_35px_rgba(59,130,246,0.5)]"
+                            className="inline-flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white text-sm font-semibold cursor-pointer border-none transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-px hover:shadow-[0_0_35px_rgba(59,130,246,0.5)]"
                             onClick={() => navigate("/auth")}
                         >
-                            Get Started <ArrowRight size={15} />
+                            <span className="hidden sm:inline">Get Started</span>
+                            <span className="sm:hidden">Start</span>
+                            <ArrowRight size={14} />
                         </button>
                     </div>
                 </div>
             </nav>
 
             {/* ═══════ HERO ═══════ */}
-            <section ref={heroRef} className="relative z-[1] min-h-screen flex flex-col items-center justify-center px-6 pt-[120px] pb-20 text-center">
-                <div className="max-w-[900px] mx-auto">
+            <section ref={heroRef} className="relative z-[1] min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-24 sm:pt-[120px] pb-16 sm:pb-20 text-center">
+                <div className="max-w-[900px] mx-auto w-full">
 
                     {/* Badge */}
-                    <div className="anim-fadein inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/25 text-sky-300 text-[13px] font-medium mb-8">
-                        <Rocket size={14} className="anim-bounce text-blue-400" />
+                    <div className="anim-fadein inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-500/10 border border-blue-500/25 text-sky-300 text-[12px] sm:text-[13px] font-medium mb-6 sm:mb-8">
+                        <Rocket size={13} className="anim-bounce text-blue-400 shrink-0" />
                         <span>Next-Gen Multi-Personalized AI Platform</span>
                     </div>
 
                     {/* Title */}
-                    <div className="mb-7" style={{ transform: `perspective(800px) rotateX(${heroTiltX * 0.3}deg) rotateY(${heroTiltY * 0.3}deg)` }}>
-                        <h1 className="text-[clamp(42px,7vw,82px)] font-extrabold leading-[1.08] flex flex-col gap-1 tracking-tight">
+                    <div className="mb-5 sm:mb-7" style={{ transform: `perspective(800px) rotateX(${heroTiltX * 0.3}deg) rotateY(${heroTiltY * 0.3}deg)` }}>
+                        <h1 className="text-[clamp(36px,8vw,82px)] font-extrabold leading-[1.08] flex flex-col gap-1 tracking-tight">
                             <span className="anim-gradmove bg-gradient-to-r from-sky-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
                                 Multi-Personalized
                             </span>
@@ -317,23 +319,23 @@ export default function Landing() {
                         </h1>
                     </div>
 
-                    <p className="anim-fadein-03 text-slate-400 text-[clamp(16px,2.2vw,20px)] leading-[1.65] max-w-[680px] mx-auto mb-10">
+                    <p className="anim-fadein-03 text-slate-400 text-[clamp(14px,2.2vw,20px)] leading-[1.65] max-w-[680px] mx-auto mb-8 sm:mb-10 px-2">
                         Interact with <span className="text-sky-400 font-semibold">emotionally intelligent AI agents</span>, each with their own unique personality.
                         Choose from multiple specialized agents or <span className="text-violet-400 font-semibold">build your own</span> — tailored
                         entirely to <span className="text-pink-400 font-semibold">you</span>.
                     </p>
 
                     {/* CTA */}
-                    <div className="anim-fadein-05 flex items-center justify-center gap-3.5 flex-wrap mb-15">
+                    <div className="anim-fadein-05 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-3.5 mb-10 sm:mb-14">
                         <button
-                            className="relative inline-flex items-center gap-2.5 px-8 py-3.5 rounded-[14px] bg-gradient-to-br from-blue-500 to-violet-600 text-white text-base font-bold border-none cursor-pointer transition-all duration-300 shadow-[0_0_30px_rgba(59,130,246,0.35)] overflow-hidden hover:-translate-y-[3px] hover:scale-[1.02] hover:shadow-[0_10px_50px_rgba(59,130,246,0.5)]"
+                            className="w-full sm:w-auto relative inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-[14px] bg-gradient-to-br from-blue-500 to-violet-600 text-white text-base font-bold border-none cursor-pointer transition-all duration-300 shadow-[0_0_30px_rgba(59,130,246,0.35)] overflow-hidden hover:-translate-y-[3px] hover:scale-[1.02] hover:shadow-[0_10px_50px_rgba(59,130,246,0.5)]"
                             onClick={() => navigate("/auth")}
                         >
-                            <Sparkles size={18} />
+                            <Sparkles size={17} />
                             Start for Free
                         </button>
                         <button
-                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-[14px] bg-white/[0.04] border border-white/10 text-slate-400 text-[15px] font-semibold cursor-pointer transition-all duration-200 hover:bg-white/[0.08] hover:text-white hover:border-blue-500/30"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/[0.04] border border-white/10 text-slate-400 text-[15px] font-semibold cursor-pointer transition-all duration-200 hover:bg-white/[0.08] hover:text-white hover:border-blue-500/30"
                             onClick={() => {
                                 document.getElementById("preview-section")?.scrollIntoView({ behavior: "smooth" });
                             }}
@@ -344,31 +346,31 @@ export default function Landing() {
                     </div>
 
                     {/* Stats */}
-                    <div className="anim-fadein-07 flex gap-12 justify-center">
+                    <div className="anim-fadein-07 flex gap-6 sm:gap-12 justify-center">
                         {[
                             { v: 4, s: "+", label: "AI Agents" },
                             { v: 7, s: "", label: "Emotions Tracked" },
                             { v: 10, s: "+", label: "Custom Prompts" },
                         ].map((stat, i) => (
                             <div key={i} className="text-center">
-                                <div className="text-[32px] font-extrabold text-white tracking-tight">
+                                <div className="text-[26px] sm:text-[32px] font-extrabold text-white tracking-tight">
                                     <Counter value={stat.v} suffix={stat.s} />
                                 </div>
-                                <div className="text-[13px] text-slate-500 mt-0.5">{stat.label}</div>
+                                <div className="text-[11px] sm:text-[13px] text-slate-500 mt-0.5">{stat.label}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Scroll indicator */}
-                <div className="anim-fadein-12 absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-slate-600 text-[11px] tracking-widest">
+                {/* Scroll indicator — hidden on short mobile viewports */}
+                <div className="anim-fadein-12 hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-1.5 text-slate-600 text-[11px] tracking-widest">
                     <div className="anim-scroll-drop w-px h-10 bg-gradient-to-b from-blue-500 to-transparent" />
                     <span>Scroll to explore</span>
                 </div>
             </section>
 
             {/* ═══════ APP PREVIEW ═══════ */}
-            <section className="relative z-[1] py-[120px] px-6 text-center" id="preview-section" ref={previewRef}>
+            <section className="relative z-[1] py-16 sm:py-[120px] px-4 sm:px-6 text-center" id="preview-section" ref={previewRef}>
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-sky-400 uppercase bg-blue-500/[0.08] border border-blue-500/20 px-3.5 py-1.5 rounded-full mb-4">
                     <Star size={14} /> Live Preview
                 </div>
@@ -390,26 +392,28 @@ export default function Landing() {
                     <div className="absolute -inset-10 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.2)_0%,transparent_70%)] pointer-events-none -z-[1]" />
                 </div>
 
-                {/* Tabs */}
-                <div className="flex gap-2 justify-center flex-wrap max-w-[900px] mx-auto">
-                    {SCREENSHOTS.map((ss, i) => (
-                        <button
-                            key={i}
-                            className={`px-4 py-2.5 rounded-xl border cursor-pointer text-left transition-all duration-200 min-w-[140px] ${activeScreenshot === i
-                                ? "bg-blue-500/12 border-blue-500/40"
-                                : "bg-white/[0.03] border-white/[0.07] hover:bg-white/[0.07] hover:border-blue-500/20"
-                                }`}
-                            onClick={() => setActiveScreenshot(i)}
-                        >
-                            <span className="block text-[13px] font-semibold text-white">{ss.label}</span>
-                            <span className="block text-[11px] text-slate-500 mt-0.5">{ss.desc}</span>
-                        </button>
-                    ))}
+                {/* Tabs — horizontal scroll on mobile */}
+                <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="flex gap-2 sm:justify-center min-w-max sm:min-w-0 sm:flex-wrap max-w-[900px] mx-auto">
+                        {SCREENSHOTS.map((ss, i) => (
+                            <button
+                                key={i}
+                                className={`px-3.5 sm:px-4 py-2.5 rounded-xl border cursor-pointer text-left transition-all duration-200 min-w-[130px] sm:min-w-[140px] shrink-0 sm:shrink ${activeScreenshot === i
+                                    ? "bg-blue-500/12 border-blue-500/40"
+                                    : "bg-white/[0.03] border-white/[0.07] hover:bg-white/[0.07] hover:border-blue-500/20"
+                                    }`}
+                                onClick={() => setActiveScreenshot(i)}
+                            >
+                                <span className="block text-[12px] sm:text-[13px] font-semibold text-white">{ss.label}</span>
+                                <span className="hidden sm:block text-[11px] text-slate-500 mt-0.5">{ss.desc}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </section>
 
             {/* ═══════ FEATURES GRID ═══════ */}
-            <section ref={featuresRef} className="relative z-[1] py-[120px] px-6 bg-white/[0.015] text-center">
+            <section ref={featuresRef} className="relative z-[1] py-16 sm:py-[120px] px-4 sm:px-6 bg-white/[0.015] text-center">
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-sky-400 uppercase bg-blue-500/[0.08] border border-blue-500/20 px-3.5 py-1.5 rounded-full mb-4">
                     <Zap size={14} /> Core Capabilities
                 </div>
@@ -447,7 +451,7 @@ export default function Landing() {
             </section>
 
             {/* ═══════ AGENTS SHOWCASE ═══════ */}
-            <section ref={agentsRef} className="relative z-[1] py-[120px] px-6 text-center">
+            <section ref={agentsRef} className="relative z-[1] py-16 sm:py-[120px] px-4 sm:px-6 text-center">
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-sky-400 uppercase bg-blue-500/[0.08] border border-blue-500/20 px-3.5 py-1.5 rounded-full mb-4">
                     <Users size={14} /> The Team
                 </div>
@@ -504,17 +508,17 @@ export default function Landing() {
                 </div>
 
                 {/* Custom agent CTA */}
-                <div className="max-w-[800px] mx-auto bg-gradient-to-br from-blue-500/[0.08] to-violet-500/[0.08] border border-violet-500/20 rounded-[20px] p-7 px-8">
-                    <div className="flex items-center gap-5 flex-wrap">
-                        <div className="w-[52px] h-[52px] shrink-0 bg-gradient-to-br from-blue-500 to-violet-600 rounded-[16px] flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.35)]">
-                            <Wand2 size={24} color="white" />
+                <div className="max-w-[800px] mx-auto bg-gradient-to-br from-blue-500/[0.08] to-violet-500/[0.08] border border-violet-500/20 rounded-[20px] p-5 sm:p-7 sm:px-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+                        <div className="w-12 h-12 sm:w-[52px] sm:h-[52px] shrink-0 bg-gradient-to-br from-blue-500 to-violet-600 rounded-[16px] flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.35)]">
+                            <Wand2 size={22} color="white" />
                         </div>
                         <div className="flex-1 text-left">
-                            <h3 className="text-[17px] font-bold text-white m-0 mb-1">Build Your Own Agent</h3>
-                            <p className="text-[14px] text-slate-500 m-0">Define a custom persona with unique system prompts, icons, and color themes.</p>
+                            <h3 className="text-[16px] sm:text-[17px] font-bold text-white m-0 mb-1">Build Your Own Agent</h3>
+                            <p className="text-[13px] sm:text-[14px] text-slate-500 m-0">Define a custom persona with unique system prompts, icons, and color themes.</p>
                         </div>
                         <button
-                            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white text-sm font-semibold cursor-pointer border-none transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-px hover:shadow-[0_0_35px_rgba(59,130,246,0.5)]"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white text-sm font-semibold cursor-pointer border-none transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-px hover:shadow-[0_0_35px_rgba(59,130,246,0.5)]"
                             onClick={() => navigate("/auth")}
                         >
                             Create Agent <ArrowRight size={15} />
@@ -524,8 +528,10 @@ export default function Landing() {
             </section>
 
             {/* ═══════ ANALYTICS SHOWCASE ═══════ */}
-            <section ref={analyticsRef} className="relative z-[1] py-[120px] px-6 bg-white/[0.015]">
-                <div className="max-w-[1200px] mx-auto grid gap-16 items-center" style={{ gridTemplateColumns: "1fr 1.2fr" }}>
+            <section ref={analyticsRef} className="relative z-[1] py-16 sm:py-[120px] px-4 sm:px-6 bg-white/[0.015]">
+                <div className="max-w-[1200px] mx-auto grid gap-10 sm:gap-16 items-center" style={{ gridTemplateColumns: "1fr" }}>
+                <style>{`@media(min-width:768px){.analytics-grid{grid-template-columns:1fr 1.2fr!important}}`}</style>
+                <div className="analytics-grid max-w-[1200px] mx-auto grid gap-10 sm:gap-16 items-center w-full" style={{ gridTemplateColumns: "1fr" }}>
                     {/* Left: text */}
                     <div>
                         <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-sky-400 uppercase bg-blue-500/[0.08] border border-blue-500/20 px-3.5 py-1.5 rounded-full mb-4">
@@ -562,12 +568,7 @@ export default function Landing() {
                     </div>
 
                     {/* Right: stacked browser screenshots */}
-                    <div className={`relative h-[380px] transition-all duration-[900ms] ${analyticsScroll.inView ? "opacity-100 translate-x-0 [perspective:800px] [rotateY:0deg]" : "opacity-0 translate-x-10"}`}
-                        style={analyticsScroll.inView
-                            ? { transform: "translateX(0) perspective(800px) rotateY(0deg)" }
-                            : { transform: "translateX(40px) perspective(800px) rotateY(10deg)" }
-                        }
-                    >
+                    <div className={`relative transition-all duration-[900ms] ${analyticsScroll.inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"}`}>
                         <BrowserMockup
                             src="/assets/ss/analysis 2 .jpg"
                             alt="Analytics Charts"
@@ -580,20 +581,21 @@ export default function Landing() {
                             tiltY={-8}
                             style={{
                                 position: "absolute",
-                                top: "30px",
-                                left: "30px",
+                                top: "24px",
+                                left: "24px",
                                 zIndex: 1,
-                                opacity: 0.6,
+                                opacity: 0.5,
                                 filter: "brightness(0.7) blur(1px)"
                             }}
                         />
                         <div className="absolute -inset-[60px] bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_70%)] pointer-events-none z-0" />
                     </div>
                 </div>
+                </div>
             </section>
 
             {/* ═══════ FINAL CTA ═══════ */}
-            <section className="relative z-[1] py-[120px] px-6 text-center overflow-hidden">
+            <section className="relative z-[1] py-16 sm:py-[120px] px-4 sm:px-6 text-center overflow-hidden">
                 <div className="relative max-w-[800px] mx-auto">
                     <div className="absolute w-[400px] h-[400px] -top-[100px] -left-[100px] bg-blue-500/12 rounded-full blur-[80px] pointer-events-none" />
                     <div className="absolute w-[350px] h-[350px] -bottom-[80px] -right-[80px] bg-violet-500/10 rounded-full blur-[80px] pointer-events-none" />
