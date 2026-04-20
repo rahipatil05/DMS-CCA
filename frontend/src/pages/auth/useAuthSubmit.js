@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import apiFetch from "@/lib/api";
 
 export function useAuthSubmit(login) {
   const [loading, setLoading] = useState(false);
@@ -32,8 +33,8 @@ export function useAuthSubmit(login) {
 
       const endpoint =
         mode === "login"
-          ? "http://localhost:5000/api/auth/login"
-          : "http://localhost:5000/api/auth/signup";
+          ? "/api/auth/login"
+          : "/api/auth/signup";
 
       const payload =
         mode === "login"
@@ -42,16 +43,14 @@ export function useAuthSubmit(login) {
 
       let res;
       try {
-        res = await fetch(endpoint, {
+        res = await apiFetch(endpoint, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify(payload)
         });
       } catch (fetchErr) {
         // Network error or CORS issue
         console.error("Network error:", fetchErr);
-        throw new Error("Cannot connect to server. Please ensure backend is running on port 5000 and frontend is on port 5173.");
+        throw new Error("Cannot connect to server. Please check that the backend is running.");
       }
 
       let data;
@@ -65,16 +64,11 @@ export function useAuthSubmit(login) {
         throw new Error(data.message || "Authentication failed");
       }
 
-      // Debug: Log the response data
-      console.log("Auth response data:", data);
-      console.log("User role:", data?.user?.role);
-
-      // Update global auth state instead of localStorage
+      // Update global auth state
       if (data.user) {
-        // We still keep the user object in localStorage for basic non-sensitive UI persistence 
-        // but the role and actual auth will be verified by the backend
+        // Keep user object in localStorage for basic non-sensitive UI persistence.
+        // Actual auth is verified by the backend JWT cookie on every request.
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("Updated user data in localStorage (non-sensitive)");
 
         // Sync with AuthContext
         if (login) {

@@ -4,6 +4,7 @@ import {
   RefreshCw, AlertCircle, Mail
 } from "lucide-react";
 import { toast } from "sonner";
+import apiFetch from "@/lib/api";
 
 const T = {
   card: "#0d1525", border: "rgba(255,255,255,0.08)",
@@ -24,7 +25,7 @@ export default function AdminUsers() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch("http://localhost:5000/api/admin/users", { credentials: "include" });
+      const res  = await apiFetch("/api/admin/users");
       const data = await res.json();
       setUsers(Array.isArray(data) ? data : []);
     } catch { toast.error("Failed to load users"); }
@@ -45,9 +46,8 @@ export default function AdminUsers() {
   const saveEdit = async (id) => {
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
-        method: "PUT", credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const res = await apiFetch(`/api/admin/users/${id}`, {
+        method: "PUT",
         body: JSON.stringify(editForm)
       });
       if (!res.ok) throw new Error((await res.json()).message);
@@ -61,7 +61,7 @@ export default function AdminUsers() {
 
   const doDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await apiFetch(`/api/admin/users/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).message);
       setUsers(prev => prev.filter(u => u._id !== id));
       setDeleting(null);
@@ -72,9 +72,8 @@ export default function AdminUsers() {
   const toggleRole = async (u) => {
     const newRole = u.role === "admin" ? "user" : "admin";
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${u._id}`, {
-        method: "PUT", credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const res = await apiFetch(`/api/admin/users/${u._id}`, {
+        method: "PUT",
         body: JSON.stringify({ role: newRole })
       });
       if (!res.ok) throw new Error((await res.json()).message);

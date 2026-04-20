@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import apiFetch from "@/lib/api";
 import {
   Send, Database, Loader2, AlertCircle, Copy, Check,
   ChevronRight, Sparkles, Bot, X, Code2, Terminal
@@ -217,10 +218,8 @@ export default function AdminDBChat() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/chat-query", {
+      const res = await apiFetch("/api/admin/chat-query", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q, ollamaModel: model })
       });
       const data = await res.json();

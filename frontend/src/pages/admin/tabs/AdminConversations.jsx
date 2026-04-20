@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import apiFetch from "@/lib/api";
 import {
   MessageSquare, Search, RefreshCw, AlertCircle,
   ChevronDown, ChevronUp, Bot, User, ChevronLeft, ChevronRight
@@ -31,7 +32,7 @@ export default function AdminConversations() {
   const fetchConvos = useCallback(async (p = 1) => {
     setLoading(true);
     try {
-      const res  = await fetch(`http://localhost:5000/api/admin/conversations?page=${p}&limit=15`, { credentials: "include" });
+      const res  = await apiFetch(`/api/admin/conversations?page=${p}&limit=15`);
       const data = await res.json();
       setConvos(data.conversations || []);
       setTotal(data.total || 0);

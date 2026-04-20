@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
@@ -15,6 +15,18 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: true, // Fail if port is already in use instead of trying another port
+    strictPort: true,
   },
-});
+  build: {
+    sourcemap: mode !== "production",
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          charts: ["recharts"],
+        },
+      },
+    },
+  },
+}));

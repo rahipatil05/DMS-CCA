@@ -6,6 +6,7 @@ import {
   RotateCcw, Wand2
 } from "lucide-react";
 import { toast } from "sonner";
+import apiFetch from "@/lib/api";
 
 const THEME = {
   card: "#0d1525", cardBorder: "rgba(255,255,255,0.08)",
@@ -114,20 +115,10 @@ export default function AdminAgents() {
   const [enhancedPrompt, setEnhancedPrompt] = useState(null); // null = not shown
   const [ollamaModel, setOllamaModel]   = useState("llama3.1");
 
-  const fetchAgents = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("http://localhost:5000/api/admin/agents", { credentials: "include" });
-      setAgents(Array.isArray(await res.json()) ? await (await fetch("http://localhost:5000/api/admin/agents", { credentials: "include" })).json() : []);
-    } catch { toast.error("Failed to load agents"); }
-    finally { setLoading(false); }
-  }, []);
-
-  // Cleaner fetch
   const loadAgents = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch("http://localhost:5000/api/admin/agents", { credentials: "include" });
+      const res  = await apiFetch("/api/admin/agents");
       const data = await res.json();
       setAgents(Array.isArray(data) ? data : []);
     } catch { toast.error("Failed to load agents"); }
@@ -166,9 +157,8 @@ export default function AdminAgents() {
     setEnhancing(true);
     setEnhancedPrompt("__loading__");
     try {
-      const res = await fetch("http://localhost:5000/api/admin/enhance-prompt", {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const res = await apiFetch("/api/admin/enhance-prompt", {
+        method: "POST",
         body: JSON.stringify({ draft, agentName: form.name || "AI Agent", ollamaModel })
       });
       const data = await res.json();
@@ -201,9 +191,8 @@ export default function AdminAgents() {
     try {
       const url    = editingId ? `/api/admin/agents/${editingId}` : "/api/admin/agents";
       const method = editingId ? "PUT" : "POST";
-      const res = await fetch(`http://localhost:5000${url}`, {
-        method, credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const res = await apiFetch(url, {
+        method,
         body: JSON.stringify(form)
       });
       if (!res.ok) throw new Error((await res.json()).message);
@@ -222,7 +211,7 @@ export default function AdminAgents() {
 
   const doDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/agents/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await apiFetch(`/api/admin/agents/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).message);
       setAgents(prev => prev.filter(a => a._id !== id));
       setDeleting(null);

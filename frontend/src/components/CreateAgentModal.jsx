@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Bot, Sparkles, MessageSquare, Brain, Code, Palette, Heart, Plus, Loader2 } from 'lucide-react';
+import apiFetch from "@/lib/api";
 
 const ICONS = [
     { name: 'Bot', icon: Bot },
@@ -42,11 +43,9 @@ export default function CreateAgentModal({ isOpen, onClose, onSuccess }) {
         setError(null);
 
         try {
-            const response = await fetch("http://localhost:5000/api/agents/enhance-prompt", {
+            const response = await apiFetch("/api/agents/enhance-prompt", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ prompt: formData.prompt }),
-                credentials: "include"
             });
 
             if (!response.ok) {
@@ -86,17 +85,13 @@ export default function CreateAgentModal({ isOpen, onClose, onSuccess }) {
         setError(null);
 
         try {
-            const response = await fetch("http://localhost:5000/api/agents", {
+            const response = await apiFetch("/api/agents", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify({
                     ...formData,
                     isCustom: true,
                     isPublic: false
                 }),
-                credentials: "include"
             });
 
             if (!response.ok) {

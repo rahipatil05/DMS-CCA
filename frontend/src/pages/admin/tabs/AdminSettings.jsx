@@ -3,6 +3,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Shield, Settings, LogOut, Bell, Database, Users, Bot, MessageSquare, Info } from "lucide-react";
 import { toast } from "sonner";
+import apiFetch from "@/lib/api";
 
 const THEME = {
   card: "#0d1525", cardBorder: "rgba(255,255,255,0.08)",
@@ -25,7 +26,7 @@ export default function AdminSettings() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", { method: "POST", credentials: "include" });
+      await apiFetch("/api/auth/logout", { method: "POST" });
     } finally {
       contextLogout();
       toast.success("Logged out");

@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import apiFetch from "@/lib/api";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -84,9 +85,7 @@ export default function ChatPage() {
     useEffect(() => {
         const fetchAgents = async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/agents", {
-                    credentials: "include"
-                });
+                const response = await apiFetch("/api/agents");
                 if (response.ok) {
                     const data = await response.json();
                     setAgents(data);
@@ -112,9 +111,7 @@ export default function ChatPage() {
         if (!agentId) return;
         const fetchHistory = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/chat/${agentId}`, {
-                    credentials: "include"
-                });
+                const response = await apiFetch(`/api/chat/${agentId}`);
                 if (response.ok) {
                     const data = await response.json();
                     setMessages(data.messages || []);
@@ -140,9 +137,8 @@ export default function ChatPage() {
                 label: "Delete",
                 onClick: async () => {
                     try {
-                        const response = await fetch(`http://localhost:5000/api/agents/${id}`, {
-                            method: "DELETE",
-                            credentials: "include"
+                        const response = await apiFetch(`/api/agents/${id}`, {
+                            method: "DELETE"
                         });
                         if (response.ok) {
                             setAgents(prev => prev.filter(a => a._id !== id));
@@ -169,9 +165,8 @@ export default function ChatPage() {
                 label: "Clear",
                 onClick: async () => {
                     try {
-                        const response = await fetch(`http://localhost:5000/api/chat/${agentId}`, {
-                            method: "DELETE",
-                            credentials: "include"
+                        const response = await apiFetch(`/api/chat/${agentId}`, {
+                            method: "DELETE"
                         });
                         if (response.ok) {
                             setMessages([]);
@@ -194,11 +189,9 @@ export default function ChatPage() {
             const currentUser = authUser;
             const updatedInterests = [...new Set([...(currentUser.interests || []), ...(discoveryData.interests || [])])];
             const updatedTraits = [...new Set([...(currentUser.personalityTraits || []), ...(discoveryData.personalityTraits || [])])];
-            const response = await fetch("http://localhost:5000/api/user/profile", {
+            const response = await apiFetch("/api/user/profile", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ interests: updatedInterests, personalityTraits: updatedTraits }),
-                credentials: "include"
             });
             if (response.ok) {
                 const data = await response.json();
@@ -223,11 +216,9 @@ export default function ChatPage() {
         setSending(true);
 
         try {
-            const response = await fetch("http://localhost:5000/api/chat", {
+            const response = await apiFetch("/api/chat", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ agentId, message: currentMessage }),
-                credentials: "include"
             });
 
             if (response.ok) {

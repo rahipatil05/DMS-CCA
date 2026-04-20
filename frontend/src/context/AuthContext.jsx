@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
+import apiFetch from "@/lib/api";
 
 export const AuthContext = createContext();
 
@@ -13,10 +14,7 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/auth/check-auth", {
-                method: "GET",
-                credentials: "include",
-            });
+            const res = await apiFetch("/api/auth/check-auth");
 
             if (res.ok) {
                 const data = await res.json();

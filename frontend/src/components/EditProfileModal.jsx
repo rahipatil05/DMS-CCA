@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Loader2, CheckCircle, Calendar, Hash, Smile, Heart } from 'lucide-react';
+import apiFetch from "@/lib/api";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -22,13 +23,9 @@ export default function EditProfileModal({ isOpen, onClose, user, onSuccess }) {
         setSuccess(false);
 
         try {
-            const response = await fetch("http://localhost:5000/api/user/profile", {
+            const response = await apiFetch("/api/user/profile", {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify(formData),
-                credentials: "include"
             });
 
             if (!response.ok) {

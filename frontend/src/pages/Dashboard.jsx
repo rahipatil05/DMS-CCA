@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
+import apiFetch from "@/lib/api";
 import {
     Brain,
     Sparkles,
@@ -71,11 +72,7 @@ export default function Dashboard() {
     // Logout handler
     const handleLogout = async () => {
         try {
-            // Attempt to call backend logout to clear cookie
-            await fetch("http://localhost:5000/api/auth/logout", {
-                method: "POST",
-                credentials: "include"
-            });
+            await apiFetch("/api/auth/logout", { method: "POST" });
         } catch (err) {
             console.error("Logout API error:", err);
         } finally {
@@ -103,13 +100,7 @@ export default function Dashboard() {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch("http://localhost:5000/api/user/dashboard-stats", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    credentials: "include",
-                });
+                const response = await apiFetch("/api/user/dashboard-stats");
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
@@ -148,9 +139,8 @@ export default function Dashboard() {
                 label: "Delete",
                 onClick: async () => {
                     try {
-                        const response = await fetch(`http://localhost:5000/api/agents/${agentId}`, {
-                            method: "DELETE",
-                            credentials: "include"
+                        const response = await apiFetch(`/api/agents/${agentId}`, {
+                            method: "DELETE"
                         });
 
                         if (!response.ok) {

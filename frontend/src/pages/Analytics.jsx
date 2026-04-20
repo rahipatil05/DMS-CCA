@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import apiFetch from "@/lib/api";
 import {
     AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -272,9 +273,7 @@ export default function Analytics() {
             setShowJournalModal(true);
             setJournalData(null);
             
-            const res = await fetch("http://localhost:5000/api/analytics/journal", {
-                credentials: "include"
-            });
+            const res = await apiFetch("/api/analytics/journal");
             
             const json = await res.json();
             if (!res.ok) throw new Error(json.message || "Failed to generate journal");
@@ -291,9 +290,7 @@ export default function Analytics() {
         try {
             setLoading(true);
             setError(null);
-            const res = await fetch("http://localhost:5000/api/analytics", {
-                credentials: "include"
-            });
+            const res = await apiFetch("/api/analytics");
             if (!res.ok) throw new Error("Failed to fetch analytics");
             const json = await res.json();
             setData(json);

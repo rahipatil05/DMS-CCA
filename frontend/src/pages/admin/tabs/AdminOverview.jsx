@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import apiFetch from "@/lib/api";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -118,7 +119,7 @@ export default function AdminOverview() {
   const fetchStats = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/stats", { credentials: "include" });
+      const res = await apiFetch("/api/admin/stats");
       if (!res.ok) throw new Error("Failed to fetch platform stats");
       setData(await res.json());
     } catch (e) { setError(e.message); }

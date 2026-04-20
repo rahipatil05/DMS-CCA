@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import apiFetch from "@/lib/api";
 import {
   LayoutDashboard, Users, Bot, MessageSquare, Database,
   Settings, LogOut, Shield, Menu, X, Search, ChevronRight
@@ -39,7 +40,7 @@ export default function AdminPanel() {
   const [stats, setStats]                   = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/stats", { credentials: "include" })
+    apiFetch("/api/admin/stats")
       .then(r => r.json())
       .then(d => setStats(d?.summary || null))
       .catch(() => {});
@@ -47,7 +48,7 @@ export default function AdminPanel() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", { method: "POST", credentials: "include" });
+      await apiFetch("/api/auth/logout", { method: "POST" });
     } finally {
       contextLogout();
       navigate("/");

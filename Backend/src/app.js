@@ -11,22 +11,39 @@ import analyticsRoutes from "./routes/analytics.routes.js";
 
 const app = express();
 
+const IS_DEV = process.env.NODE_ENV !== "production";
+
 /* ---------- Middlewares ---------- */
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
+
+/* ---------- CORS ---------- */
+// CLIENT_URL supports comma-separated origins for multi-env setups
+// e.g. CLIENT_URL=https://app.example.com,http://localhost:5173
+const rawOrigins = process.env.CLIENT_URL || "http://localhost:5173";
+const allowedOrigins = rawOrigins.split(",").map((o) => o.trim()).filter(Boolean);
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend
-    credentials: true
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    },
+    credentials: true,
   })
 );
 
-/* ---------- Debug logger ---------- */
-app.use((req, res, next) => {
-  console.log("REQ:", req.method, req.originalUrl);
-  next();
-});
+/* ---------- Dev request logger ---------- */
+if (IS_DEV) {
+  app.use((req, _res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+    next();
+  });
+}
 
 /* ---------- Routes ---------- */
 app.use("/api/auth", authRoutes);
@@ -37,16 +54,22 @@ app.use("/api/user", userRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 /* ---------- Health ---------- */
-app.get("/", (req, res) => {
-  res.json({ status: "ok" });
+app.get("/", (_req, res) => {
+  res.json({ status: "ok", env: process.env.NODE_ENV || "development" });
 });
 
 /* ---------- 404 ---------- */
 app.use((req, res) => {
-  console.warn("404:", req.method, req.originalUrl);
-  res.status(404).json({
-    message: `Not found: ${req.method} ${req.originalUrl}`,
-  });
+  res.status(404).json({ message: `Not found: ${req.method} ${req.originalUrl}` });
+});
+
+/* ---------- Global error handler ---------- */
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
+  const status = err.status || err.statusCode || 500;
+  const message = IS_DEV ? err.message : "Internal server error";
+  if (IS_DEV) console.error("[Error]", err);
+  res.status(status).json({ message });
 });
 
 export default app;
