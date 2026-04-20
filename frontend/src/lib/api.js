@@ -20,13 +20,22 @@ const BASE = import.meta.env.VITE_API_URL ?? "";
  */
 export async function apiFetch(path, opts = {}) {
   const url = `${BASE}${path}`;
+  
+  // Retrieve token from local storage as a fallback to cookies
+  const token = localStorage.getItem("jwt");
+  const headers = {
+    "Content-Type": "application/json",
+    ...(opts.headers ?? {}),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(url, {
     credentials: "include",
     ...opts,
-    headers: {
-      "Content-Type": "application/json",
-      ...(opts.headers ?? {}),
-    },
+    headers,
   });
   return response;
 }

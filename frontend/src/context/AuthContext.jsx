@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
         // Clear local storage as well for safety since we're transitioning
         localStorage.removeItem("user");
         localStorage.removeItem("userRole");
+        localStorage.removeItem("jwt");
     };
 
     return (

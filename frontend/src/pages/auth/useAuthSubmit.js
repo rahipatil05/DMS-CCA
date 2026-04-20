@@ -67,8 +67,12 @@ export function useAuthSubmit(login) {
       // Update global auth state
       if (data.user) {
         // Keep user object in localStorage for basic non-sensitive UI persistence.
-        // Actual auth is verified by the backend JWT cookie on every request.
+        // Actual auth is verified by the backend JWT on every request.
         localStorage.setItem("user", JSON.stringify(data.user));
+        
+        if (data.token) {
+          localStorage.setItem("jwt", data.token);
+        }
 
         // Sync with AuthContext
         if (login) {

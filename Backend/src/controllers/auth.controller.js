@@ -43,10 +43,9 @@ export const signup = async (req, res) => {
       // generateToken(newUser._id, res);
       // await newUser.save();
 
-      // after CR:
       // Persist user first, then issue auth cookie
       const savedUser = await newUser.save();
-      generateToken(savedUser._id, res);
+      const token = generateToken(savedUser._id, res);
 
       res.status(201).json({
         user: {
@@ -54,7 +53,8 @@ export const signup = async (req, res) => {
           fullName: savedUser.fullName,
           email: savedUser.email,
           role: savedUser.role
-        }
+        },
+        token: token
       });
 
       // Send welcome email asynchronously — does not block signup response
@@ -85,7 +85,7 @@ export const login = async (req, res) => {
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
 
-    generateToken(user._id, res);
+    const token = generateToken(user._id, res);
 
     res.status(200).json({
       user: {
@@ -93,7 +93,8 @@ export const login = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         role: user.role
-      }
+      },
+      token: token
     });
   } catch (error) {
     console.error("Error in login controller:", error);
@@ -102,7 +103,8 @@ export const login = async (req, res) => {
 };
 
 export const logout = (_, res) => {
-  res.cookie("jwt", "", { maxAge: 0, httpOnly: true, sameSite: ENV.NODE_ENV === "production" ? "none" : "lax", secure: ENV.NODE_ENV === "production" });
+  const isCrossDomain = ENV.NODE_ENV === "production" || String(ENV.CLIENT_URL).includes("vercel.app");
+  res.cookie("jwt", "", { maxAge: 0, httpOnly: true, sameSite: isCrossDomain ? "none" : "lax", secure: isCrossDomain });
   res.status(200).json({ message: "Logged out successfully" });
 };
 
@@ -149,7 +151,8 @@ export const deleteAccountData = async (req, res) => {
     const agentsDeleted = await Agent.deleteMany({ createdBy: userId });
 
     // Clear JWT cookie
-    res.cookie("jwt", "", { maxAge: 0, httpOnly: true, sameSite: ENV.NODE_ENV === "production" ? "none" : "lax", secure: ENV.NODE_ENV === "production" });
+    const isCrossDomain = ENV.NODE_ENV === "production" || String(ENV.CLIENT_URL).includes("vercel.app");
+    res.cookie("jwt", "", { maxAge: 0, httpOnly: true, sameSite: isCrossDomain ? "none" : "lax", secure: isCrossDomain });
 
     res.status(200).json({
       message: "All account data deleted successfully",
