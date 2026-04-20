@@ -11,7 +11,7 @@ export const generateToken = (userId, res) => {
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,                   // prevent XSS attacks
-    sameSite: isProd ? "strict" : "lax", // strict in prod, lax in dev (cross-port)
+    sameSite: isProd ? "none" : "lax", // none is REQUIRED for cross-domain cookies (Vercel <-> Render)
     secure: isProd,                   // HTTPS only in production
     path: "/",
   });
