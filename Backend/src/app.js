@@ -21,8 +21,14 @@ app.use(cookieParser());
 /* ---------- CORS ---------- */
 // CLIENT_URL supports comma-separated origins for multi-env setups
 // e.g. CLIENT_URL=https://app.example.com,http://localhost:5173
+// Extract allowed origins from environment or fallback to localhost
 const rawOrigins = process.env.CLIENT_URL || "http://localhost:5173";
 const allowedOrigins = rawOrigins.split(",").map((o) => o.trim()).filter(Boolean);
+
+// Always explicitly allow Vercel domain to prevent Render Env misconfigurations
+if (!allowedOrigins.includes("https://dms-cca.vercel.app")) {
+  allowedOrigins.push("https://dms-cca.vercel.app");
+}
 
 console.log("CORS Allowed Origins configuration loaded:", allowedOrigins);
 
