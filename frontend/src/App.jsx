@@ -5,6 +5,7 @@ import Landing from './pages/Landing.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Chat from './pages/Chat.jsx'
 import Analytics from './pages/Analytics.jsx'
+import AdminPanel from './pages/admin/AdminPanel.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 import { Toaster } from "./components/ui/sonner";
@@ -30,15 +31,17 @@ function AppContent() {
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
 
-        {/* Protected Routes - Require Authentication and Specific Role */}
+        {/* Admin Panel */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <Auth />
+              <AdminPanel />
             </ProtectedRoute>
           }
         />
+
+        {/* Protected User Routes */}
         <Route
           path="/User"
           element={
