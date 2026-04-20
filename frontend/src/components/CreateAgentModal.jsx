@@ -126,7 +126,7 @@ export default function CreateAgentModal({ isOpen, onClose, onSuccess }) {
             />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-2xl bg-[#0a192f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+            <div className="relative w-full max-w-2xl max-h-[95dvh] overflow-y-auto bg-[#0a192f] border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
                 <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 via-purple-500 to-pink-500" />
 
                 <div className="p-6">

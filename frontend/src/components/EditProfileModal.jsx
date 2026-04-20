@@ -66,7 +66,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSuccess }) {
             />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-4xl bg-[#0a192f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-fade-in mx-auto">
+            <div className="relative w-full max-w-4xl max-h-[95dvh] overflow-y-auto bg-[#0a192f] border border-white/10 rounded-2xl shadow-2xl animate-fade-in mx-auto">
                 <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 to-purple-500" />
 
                 <div className="p-6 md:p-8">
