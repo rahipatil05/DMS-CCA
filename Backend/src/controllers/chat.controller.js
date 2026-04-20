@@ -39,6 +39,16 @@ export const sendMessage = async (req, res) => {
       });
     }
 
+    // --- Hard Mute Enforcement ---
+    if (chat.mutedUntil && new Date() < chat.mutedUntil) {
+      const minutesLeft = Math.ceil((chat.mutedUntil - new Date()) / 60000);
+      return res.json({ 
+        reply: `*[Agent is currently giving you space. Silenced for ${minutesLeft} more minute(s)...]*`, 
+        emotion: emotionData, 
+        discoveries: null 
+      });
+    }
+
     // Add user message
     chat.messages.push({ role: "user", content: message, emotion: emotionLabel });
     await chat.save(); // Save immediately so it persists if user switches agents
@@ -55,8 +65,10 @@ export const sendMessage = async (req, res) => {
     // Intercept and parse Self-Discovery block
     let discoveries = null;
     let cleanReply = reply;
+    
+    // 1. Check for Discovery
     const discoveryRegex = /:::DISCOVERY:::([\s\S]*?)(:::|$)/;
-    const discoveryMatch = reply.match(discoveryRegex);
+    const discoveryMatch = cleanReply.match(discoveryRegex);
 
     if (discoveryMatch) {
       try {
@@ -64,8 +76,17 @@ export const sendMessage = async (req, res) => {
       } catch (e) {
         console.error("Error parsing discovery JSON:", e);
       }
-      // Always remove the block from the reply that the user sees
-      cleanReply = reply.replace(discoveryRegex, "").trim();
+      cleanReply = cleanReply.replace(discoveryRegex, "").trim();
+    }
+
+    // 2. Check for Mute Mechanics
+    const muteRegex = /:::MUTE_MINUTES:(\d+):::/;
+    const muteMatch = cleanReply.match(muteRegex);
+    
+    if (muteMatch) {
+      const muteMins = parseInt(muteMatch[1], 10) || 3; // Default 3 if parsing fails
+      chat.mutedUntil = new Date(Date.now() + muteMins * 60000);
+      cleanReply = cleanReply.replace(muteRegex, "").trim();
     }
 
     // Add assistant message

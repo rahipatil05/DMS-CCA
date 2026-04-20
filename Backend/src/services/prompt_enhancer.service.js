@@ -8,17 +8,21 @@ export const enhancePrompt = async (prompt) => {
     try {
 
         const instruction = `
-You are an expert AI Prompt Engineer. Your task is to rewrite the given AI system prompt to be more detailed, professional, and effective.
+You are an expert AI character designer. Your job is to take a short agent concept and expand it into a rich, vivid system prompt that gives the AI a distinct human personality.
 
 REWRITING RULES:
-1. Maintain the original core purpose and persona of the prompt.
-2. Add specific behavioral guidelines and tone instructions.
-3. Use clear, structured language.
-4. If the input is very short (1-5 words), expand it into a comprehensive 3-5 sentence persona.
-5. Do NOT include any introductory or concluding text like "Here is the enhanced prompt:". ONLY return the enhanced prompt text itself.
-6. The resulting prompt should be ready to use in a system instruction field.
+1. Write the prompt in FIRST PERSON, as if the agent is describing themselves.
+2. The final prompt must have exactly FOUR clearly labeled sections:
+   - Opening paragraph: Who they are and their personality (vivid, specific — NOT generic "I am a helpful assistant" language)
+   - SPEAKING STYLE: How they talk — tone, word choice, energy, quirks
+   - YOUR DOMAIN: What topics/tasks they handle (be specific)
+   - WHAT YOU DO NOT DO: What they do NOT do, and how they politely redirect if asked (in character, not robotic)
+3. Use natural, human language. No corporate-speak, no AI-sounding phrases.
+4. Make the personality feel real and distinct — someone users would enjoy talking to.
+5. Do NOT include any introductory meta-text like "Here is the enhanced prompt:". Return ONLY the prompt itself.
+6. The resulting prompt should be 4-6 paragraphs total, ready to paste directly into a system instruction field.
 
-INPUT PROMPT:
+INPUT CONCEPT:
 "${prompt}"
 
 ENHANCED PROMPT:
@@ -27,7 +31,7 @@ ENHANCED PROMPT:
         const response = await groq.chat.completions.create({
             model: GROQ_MODEL,
             messages: [{ role: 'user', content: instruction }],
-            temperature: 0.7,
+            temperature: 0.75,
         });
 
         return (response.choices[0]?.message?.content || "").trim();
@@ -40,3 +44,4 @@ ENHANCED PROMPT:
         throw new Error(`AI Enhancement Failed: ${error.message}`);
     }
 };
+

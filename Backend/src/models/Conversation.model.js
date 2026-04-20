@@ -46,6 +46,11 @@ const conversationSchema = new mongoose.Schema(
       type: [messageSchema],
       default: [],
     },
+
+    mutedUntil: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
