@@ -39,14 +39,11 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    // --- Hard Mute Enforcement ---
+    // --- Mute Interruption Logic ---
+    let isInterruptedTimeout = false;
     if (chat.mutedUntil && new Date() < chat.mutedUntil) {
-      const minutesLeft = Math.ceil((chat.mutedUntil - new Date()) / 60000);
-      return res.json({ 
-        reply: `*[Agent is currently giving you space. Silenced for ${minutesLeft} more minute(s)...]*`, 
-        emotion: emotionData, 
-        discoveries: null 
-      });
+      isInterruptedTimeout = true;
+      chat.mutedUntil = null; // Break the mute since the user talked
     }
 
     // Add user message
@@ -59,7 +56,8 @@ export const sendMessage = async (req, res) => {
       chat.messages,
       emotionLabel,
       req.user, // Pass full user profile for personalization
-      agent.preferredLength
+      agent.preferredLength,
+      isInterruptedTimeout
     );
 
     // Intercept and parse Self-Discovery block
