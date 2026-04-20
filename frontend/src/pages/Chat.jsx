@@ -261,7 +261,24 @@ export default function ChatPage() {
                             }
                             return newMessages;
                         });
-                        setTimeout(() => typeChar(index + 1), typingSpeed);
+
+                        // --- Humanized Typing ML Simulation ---
+                        const char = fullText[index];
+                        const nextChar = fullText[index + 1];
+                        
+                        // Base speed (fast)
+                        let delay = Math.random() * 8 + 4; // 4-12ms
+                        
+                        // Pause on punctuation
+                        if (['.', '!', '?'].includes(char) && nextChar === ' ') {
+                            delay = Math.random() * 300 + 150; // 150-450ms pause at end of sentence
+                        } else if ([',', ';', ':'].includes(char)) {
+                            delay = Math.random() * 150 + 100; // 100-250ms pause at commas
+                        } else if (char === '\n') {
+                            delay = Math.random() * 400 + 200; // 200-600ms pause for new paragraphs
+                        }
+
+                        setTimeout(() => typeChar(index + 1), delay);
                     } else {
                         setMessages(prev => {
                             const newMessages = [...prev];
@@ -538,12 +555,16 @@ export default function ChatPage() {
                         ))}
 
                         {sending && (
-                            <div className="flex flex-col items-start animate-pulse">
-                                <div className="flex items-center gap-2 mb-1 px-1">
-                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeAgent?.name || 'AI'} IS TYPING...</span>
-                                </div>
-                                <div className="max-w-[80%] rounded-2xl px-4 py-3 text-sm bg-[#0f1b2d] border border-white/5 text-gray-500 rounded-tl-none italic">
-                                    Analyzing chat...
+                            <div className="flex flex-col items-start px-2 py-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">
+                                    {activeAgent?.name || 'Agent'} is typing
+                                </span>
+                                <div className="bg-[#0f1b2d] border border-white/5 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
+                                    <div className="flex gap-1.5 items-center h-4">
+                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -558,7 +579,7 @@ export default function ChatPage() {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 disabled={sending || isAnimating}
-                                placeholder={sending ? "Analysing emotions..." : isAnimating ? "Agent is typing..." : "Type what's on your mind..."}
+                                placeholder={sending ? "..." : isAnimating ? "Typing..." : "Message..."}
                                 className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500 text-sm disabled:opacity-50 min-w-0"
                             />
                             <Button
@@ -570,9 +591,6 @@ export default function ChatPage() {
                                 <Send className="w-3.5 h-3.5" />
                             </Button>
                         </form>
-                        <p className="text-center text-[10px] text-gray-600 mt-1.5">
-                            Emotion AI can make mistakes. Consider checking important information.
-                        </p>
                     </div>
                 </div>
 
