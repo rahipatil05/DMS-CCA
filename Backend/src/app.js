@@ -24,6 +24,8 @@ app.use(cookieParser());
 const rawOrigins = process.env.CLIENT_URL || "http://localhost:5173";
 const allowedOrigins = rawOrigins.split(",").map((o) => o.trim()).filter(Boolean);
 
+console.log("CORS Allowed Origins configuration loaded:", allowedOrigins);
+
 app.use(
   cors({
     origin: (origin, callback) => {
