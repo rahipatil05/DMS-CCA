@@ -299,8 +299,8 @@ export default function AdminAgents() {
 
       {/* ── Create / Edit Modal ──────────────────────────────────────────────── */}
       {showForm && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.78)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: "20px" }}>
-          <div style={{ background: "#0a1020", border: `1px solid ${THEME.primary}30`, borderRadius: "20px", padding: "28px", maxWidth: "600px", width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
+        <div className="p-3 md:p-5" style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.78)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div className="p-5 md:p-7" style={{ background: "#0a1020", border: `1px solid ${THEME.primary}30`, borderRadius: "20px", maxWidth: "600px", width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
 
             {/* Modal header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "22px" }}>
@@ -334,11 +334,11 @@ export default function AdminAgents() {
             {/* ── System Prompt + Enhance section ── */}
             <div style={{ marginBottom: "14px" }}>
               {/* Label row */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px", flexWrap: "wrap", gap: "10px" }}>
                 <label style={{ color: THEME.muted, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>System Prompt *</label>
 
                 {/* Enhance controls */}
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                   {/* Model selector */}
                   <select value={ollamaModel} onChange={e => setOllamaModel(e.target.value)}
                     style={{ background: "rgba(244,114,182,0.08)", border: "1px solid rgba(244,114,182,0.25)", borderRadius: "6px", padding: "3px 7px", color: "#f9a8d4", fontSize: "10px", outline: "none", cursor: "pointer" }}>
@@ -407,7 +407,7 @@ export default function AdminAgents() {
             )}
 
             {/* Icon & Color */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "14px", marginBottom: "14px" }}>
               <div>
                 <label style={{ display: "block", color: THEME.muted, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "6px" }}>Icon</label>
                 <select value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))}
@@ -427,7 +427,7 @@ export default function AdminAgents() {
             {/* Response Length */}
             <div style={{ marginBottom: "14px" }}>
               <label style={{ display: "block", color: THEME.muted, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "6px" }}>Response Length</label>
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 {LENGTH_OPTIONS.map(l => (
                   <button key={l} onClick={() => setForm(f => ({ ...f, preferredLength: l }))}
                     style={{ flex: 1, padding: "8px", borderRadius: "8px", background: form.preferredLength === l ? `${THEME.primary}18` : THEME.mutedBg, border: `1px solid ${form.preferredLength === l ? THEME.primary + "50" : THEME.cardBorder}`, color: form.preferredLength === l ? THEME.primary : THEME.muted, cursor: "pointer", fontSize: "12px", fontWeight: 600, textTransform: "capitalize" }}>
@@ -438,7 +438,7 @@ export default function AdminAgents() {
             </div>
 
             {/* Toggles */}
-            <div style={{ display: "flex", gap: "12px", marginBottom: "22px" }}>
+            <div style={{ display: "flex", gap: "12px", marginBottom: "22px", flexWrap: "wrap" }}>
               {[["isDefault", "⭐ Default Agent"], ["isPublic", "🌐 Public"]].map(([key, label]) => (
                 <button key={key} onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))}
                   style={{ flex: 1, padding: "8px", borderRadius: "8px", background: form[key] ? `${THEME.accent}15` : THEME.mutedBg, border: `1px solid ${form[key] ? THEME.accent + "40" : THEME.cardBorder}`, color: form[key] ? THEME.accent : THEME.muted, cursor: "pointer", fontSize: "12px", fontWeight: 600 }}>
