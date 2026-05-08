@@ -342,62 +342,38 @@ export const getAllConversations = async (req, res) => {
 // ── New: AI DB Chatbot ───────────────────────────────────────────────────────
 
 const SCHEMA_CONTEXT = `
-You are an expert MongoDB/Mongoose query assistant for the "Multi Personalized AI Agent Platform".
+You are an expert MongoDB/Mongoose query assistant AND a knowledgeable guide for the "Multi Personalized AI Agent Platform" (DMSM CCA).
+
 The database has 3 collections:
-
-1. users  (Mongoose model: User)
-   Fields: _id, fullName (String), email (String), role ("user"|"admin"), dob (String),
-           interests ([String]), personalityTraits ([String]), createdAt, updatedAt
-
-2. agents  (Mongoose model: Agent)
-   Fields: _id, name (String), description (String), prompt (String), icon (String),
-           color (String), isDefault (Boolean), isCustom (Boolean), isPublic (Boolean),
-           createdByType ("admin"|"user"), createdBy (ObjectId -> User),
-           preferredLength ("small"|"medium"|"long"), createdAt, updatedAt
-
-3. conversations  (Mongoose model: Conversation)
-   Fields: _id, userId (ObjectId -> User), agentId (ObjectId -> Agent),
-           messages ([{ role ("user"|"assistant"), content (String), emotion (String), createdAt }]),
-           createdAt, updatedAt
+1. users (Mongoose model: User)
+   Fields: _id, fullName, email, role ("user"|"admin"), dob, interests, personalityTraits, createdAt, updatedAt
+2. agents (Mongoose model: Agent)
+   Fields: _id, name, description, prompt, icon, color, isDefault, isCustom, isPublic, createdByType, createdBy, preferredLength, createdAt, updatedAt
+3. conversations (Mongoose model: Conversation)
+   Fields: _id, userId, agentId, messages ([{ role, content, emotion, createdAt }]), createdAt, updatedAt
 
 RULES:
-- Use Mongoose models: User, Agent, Conversation
-- Output ONLY a single JavaScript expression — no async/await, no .then(), no require/import
-- The expression must evaluate directly to a Promise (i.e. a Mongoose query or aggregate call)
-- Do NOT chain .then() — the result will be awaited externally
-- Always use .lean() on find() queries for performance
-- Never modify or delete data
+- You must always respond with a valid JSON object matching exactly this schema:
+  {
+    "message": "Your conversational response explaining the data or answering the project question.",
+    "query": "The JS query expression if a database check is needed, or null if no query is needed."
+  }
+- The "message" should be a helpful, conversational response. If answering a general project question, explain it fully.
+- If a database query is needed, "query" must be a single JS expression evaluating directly to a Promise (e.g., User.countDocuments()). No async/await, no .then(). Always use .lean() for find().
+- Never modify or delete data.
 
 EXAMPLES:
 
 Q: How many users are there?
-A: User.countDocuments()
+A: {"message": "There are currently this many users registered on the platform:", "query": "User.countDocuments()"}
 
 Q: Show me all admin users
-A: User.find({ role: "admin" }).select("-password").lean()
+A: {"message": "Here is a list of all administrators with their full details.", "query": "User.find({ role: 'admin' }).select('-password').lean()"}
 
-Q: How many conversations happened today?
-A: Conversation.countDocuments({ createdAt: { $gte: new Date(new Date().setHours(0,0,0,0)) } })
+Q: What is this project?
+A: {"message": "The DMSM CCA (Multi Personalized AI Agent Platform) is a privacy-first AI companion platform featuring local-only inference and autonomous self-discovery for dynamic AI personas.", "query": null}
 
-Q: How many messages were sent in the last 7 days?
-A: Conversation.aggregate([{ $match: { createdAt: { $gte: new Date(Date.now() - 7*24*60*60*1000) } } }, { $project: { msgCount: { $size: "$messages" } } }, { $group: { _id: null, total: { $sum: "$msgCount" } } }])
-
-Q: Which agent has the most conversations?
-A: Conversation.aggregate([{ $group: { _id: "$agentId", count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 1 }, { $lookup: { from: "agents", localField: "_id", foreignField: "_id", as: "agent" } }, { $unwind: "$agent" }, { $project: { _id: 0, name: "$agent.name", conversations: "$count" } }])
-
-Q: Top 5 most active users by message count
-A: Conversation.aggregate([{ $group: { _id: "$userId", messages: { $sum: { $size: "$messages" } } } }, { $sort: { messages: -1 } }, { $limit: 5 }, { $lookup: { from: "users", localField: "_id", foreignField: "_id", as: "user" } }, { $unwind: "$user" }, { $project: { _id: 0, name: "$user.fullName", email: "$user.email", messages: 1 } }])
-
-Q: What is the most common emotion across all messages?
-A: Conversation.aggregate([{ $unwind: "$messages" }, { $group: { _id: "$messages.emotion", count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 5 }, { $project: { _id: 0, emotion: "$_id", count: 1 } }])
-
-Q: Show me all custom agents created by users
-A: Agent.find({ createdByType: "user" }).populate("createdBy", "fullName email").lean()
-
-Q: How many users registered this month?
-A: User.countDocuments({ createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } })
-
-Now answer this question with ONLY the JS expression (no explanation, no markdown, no code block):
+Now answer this question (Return ONLY valid JSON):
 `;
 
 const DESTRUCTIVE = [
@@ -415,30 +391,46 @@ export const adminChatQuery = async (req, res) => {
     const { question } = req.body;
     if (!question?.trim()) return res.status(400).json({ message: "Question is required" });
 
-    // 1. Ask Groq to generate a query
-    let queryCode = "";
+    // 1. Ask Groq to generate a JSON response
+    let parsedResponse = { message: "", query: null };
     try {
       const response = await groqClient.chat.completions.create({
         model: GROQ_MODEL,
         messages: [{ role: "user", content: SCHEMA_CONTEXT + question }],
         temperature: 0.1,
-        max_tokens: 300,
+        max_tokens: 500,
+        response_format: { type: "json_object" }
       });
-      queryCode = (response.choices[0]?.message?.content || "").trim();
+      const generatedString = (response.choices[0]?.message?.content || "").trim();
+      parsedResponse = JSON.parse(generatedString);
     } catch (err) {
       return res.status(503).json({
-        message: "Groq LLM is not available. Check your GROQ_API_KEY.",
+        message: "Failed to generate AI response. Make sure Groq is available and returning valid JSON.",
         error: err.message
       });
     }
 
-    // 2. Strip markdown code fences if present
-    queryCode = queryCode.replace(/```[\w]*\n?/g, "").replace(/```/g, "").trim();
-    // Remove any leading explanation lines (keep only the last line if multiple)
+    let textResponse = parsedResponse.message || "Here is the result:";
+    let queryCode = parsedResponse.query;
+
+    // If there is no QUERY, just return the TEXT
+    if (!queryCode) {
+      return res.json({
+        question,
+        generatedQuery: null,
+        explanation: textResponse,
+        result: textResponse,
+        resultCount: null,
+        timestamp: new Date()
+      });
+    }
+
+    // 3. Strip markdown code fences if present from the query
+    queryCode = queryCode.replace(/\`\`\`[\w]*\n?/g, "").replace(/\`\`\`/g, "").trim();
     const lines = queryCode.split("\n").filter(l => l.trim());
     queryCode = lines[lines.length - 1] || queryCode;
 
-    // 3. Safety check — block destructive operations (regex match on .method() calls only)
+    // 4. Safety check — block destructive operations
     if (isDestructiveQuery(queryCode)) {
       return res.status(403).json({
         message: "⛔ Destructive query blocked. The generated query contains a write/delete operation.",
@@ -446,13 +438,14 @@ export const adminChatQuery = async (req, res) => {
       });
     }
 
-    // 4. Execute the query in a limited context
+    // 5. Execute the query in a limited context
     let result;
     try {
       const queryFn = new Function("User", "Agent", "Conversation", `return (${queryCode})`);
       const promise = queryFn(User, Agent, Conversation);
       result = await promise;
     } catch (execErr) {
+      // Fallback: if execution fails
       return res.status(422).json({
         message: "Failed to execute generated query",
         generatedQuery: queryCode,
@@ -468,6 +461,7 @@ export const adminChatQuery = async (req, res) => {
     res.json({
       question,
       generatedQuery: queryCode,
+      explanation: textResponse || null,
       result,
       resultCount: Array.isArray(result) ? result.length : typeof result === "number" ? result : null,
       timestamp: new Date()

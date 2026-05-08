@@ -1,1119 +1,363 @@
 # API Routes Documentation
 
-Complete reference for all API endpoints with request/response examples.
+Complete reference for all API endpoints in the DMSM CCA platform, including request bodies and code examples.
 
 **Base URL:** `http://localhost:5000`
 
 ---
 
 ## Table of Contents
-1. [Authentication Routes](#authentication-routes)
-2. [Agent Routes](#agent-routes)
-3. [Chat Routes](#chat-routes)
-4. [Admin Routes](#admin-routes)
-5. [Analytics Routes](#analytics-routes)
-6. [Quick Reference](#quick-reference)
+1. [Authentication Routes](#1-authentication-routes-apiauth)
+2. [User Routes](#2-user-routes-apiuser)
+3. [Agent Routes](#3-agent-routes-apiagents)
+4. [Chat Routes](#4-chat-routes-apichat)
+5. [Analytics Routes](#5-analytics-routes-apianalytics)
+6. [Admin Routes](#6-admin-routes-apiadmin)
 
 ---
 
-# Authentication Routes
+## 1. Authentication Routes (`/api/auth`)
 
-Base path: `/api/auth`
+### `GET /api/auth/check-auth`
+Check if the current user is authenticated and get their details.
+- **Auth:** Required (JWT)
 
-## 1. Signup
+**Example (JS Fetch):**
+```javascript
+const response = await fetch('/api/auth/check-auth', {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+const user = await response.json();
+```
 
-**POST** `/api/auth/signup`
-
+### `POST /api/auth/signup`
 Create a new user account.
+- **Body:** `{ fullName, email, password }`
+- **Response:** 201 Created with user details + JWT cookie.
 
-**Authentication:** None required
-
-**Request Body:**
-```json
-{
-  "fullName": "John Doe",
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-
-**Success Response (201):**
-```json
-{
-  "_id": "6985fe99e60fb4c055b51338",
-  "fullName": "John Doe",
-  "email": "john@example.com"
-}
-```
-
-**Error Responses:**
-- `400` - Missing fields, short password, invalid email, or email already exists
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const response = await fetch('http://localhost:5000/api/auth/signup', {
+const response = await fetch('/api/auth/signup', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    fullName: 'John Doe',
-    email: 'john@example.com',
-    password: 'password123'
-  })
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ fullName: 'John Doe', email: 'john@example.com', password: 'password123' })
 });
-
-const data = await response.json();
-console.log(data);
 ```
 
-**Example - cURL:**
-```bash
-curl -X POST http://localhost:5000/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fullName": "John Doe",
-    "email": "john@example.com",
-    "password": "password123"
-  }'
-```
-
-**Example - PowerShell:**
-```powershell
-$body = @{
-    fullName = "John Doe"
-    email = "john@example.com"
-    password = "password123"
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri "http://localhost:5000/api/auth/signup" `
-    -Method POST `
-    -Body $body `
-    -ContentType "application/json"
-```
-
-**Notes:**
-- Password must be at least 6 characters
-- Email must be valid format
-- Sets HTTP-only JWT cookie on success
-
----
-
-## 2. Login
-
-**POST** `/api/auth/login`
-
+### `POST /api/auth/login`
 Authenticate an existing user.
+- **Body:** `{ email, password }`
+- **Response:** 200 OK with user details + JWT cookie.
 
-**Authentication:** None required
-
-**Request Body:**
-```json
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "_id": "6985fe99e60fb4c055b51338",
-  "fullName": "John Doe",
-  "email": "john@example.com"
-}
-```
-
-**Error Responses:**
-- `400` - Missing fields or invalid credentials
-- `500` - Internal server error
-
-**Example - JavaScript:**
-```javascript
-const response = await fetch('http://localhost:5000/api/auth/login', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    email: 'john@example.com',
-    password: 'password123'
-  })
-});
-
-const data = await response.json();
-console.log(data);
-```
-
-**Example - cURL:**
+**Example (cURL):**
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "password123"
-  }'
+  -d '{"email":"john@example.com","password":"password123"}'
 ```
 
-**Notes:**
-- Sets HTTP-only JWT cookie on success
-- Token expires in 7 days
-- Use generic error message for security
-
----
-
-## 3. Logout
-
-**POST** `/api/auth/logout`
-
+### `POST /api/auth/logout`
 Logout the current user.
+- **Response:** 200 OK. Clears JWT cookie.
 
-**Authentication:** None required
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-{
-  "message": "Logged out successfully"
-}
-```
-
-**Example - JavaScript:**
-```javascript
-const response = await fetch('http://localhost:5000/api/auth/logout', {
-  method: 'POST'
-});
-
-const data = await response.json();
-console.log(data.message);
-```
-
-**Example - cURL:**
+**Example (cURL):**
 ```bash
 curl -X POST http://localhost:5000/api/auth/logout
 ```
 
-**Notes:**
-- Clears JWT cookie
-- Can be called without authentication
-
----
-
-## 4. Update Profile
-
-**PUT** `/api/auth/update-profile`
-
+### `PUT /api/auth/update-profile`
 Update user profile picture.
+- **Auth:** Required (JWT)
+- **Body:** `{ profilePic (base64) }`
 
-**Authentication:** Required (JWT token)
-
-**Request Body:**
-```json
-{
-  "profilePic": "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "_id": "6985fe99e60fb4c055b51338",
-  "fullName": "John Doe",
-  "email": "john@example.com",
-  "profilePic": "https://res.cloudinary.com/..."
-}
-```
-
-**Error Responses:**
-- `400` - Profile pic required
-- `401` - Unauthorized
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+await fetch('/api/auth/update-profile', {
   method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({
-    profilePic: 'data:image/jpeg;base64,...'
-  })
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ profilePic: 'data:image/jpeg;base64,...' })
 });
-
-const data = await response.json();
-console.log(data);
 ```
 
-**Example - cURL:**
-```bash
-curl -X PUT http://localhost:5000/api/auth/update-profile \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "profilePic": "data:image/jpeg;base64,..."
-  }'
-```
-
-**Notes:**
-- Requires Cloudinary configuration
-- Accepts base64 encoded image
-
----
-
-## 5. Delete Account Data
-
-**DELETE** `/api/auth/delete-account-data`
-
+### `DELETE /api/auth/delete-account-data`
 Delete all user conversations and custom agents.
+- **Auth:** Required (JWT)
 
-**Authentication:** Required (JWT token)
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-{
-  "message": "All account data deleted successfully",
-  "deleted": {
-    "conversations": 5,
-    "agents": 3
-  }
-}
-```
-
-**Error Responses:**
-- `401` - Unauthorized
-- `500` - Internal server error
-
-**Example - JavaScript:**
-```javascript
-const response = await fetch('http://localhost:5000/api/auth/delete-account-data', {
-  method: 'DELETE',
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
-
-const data = await response.json();
-console.log(`Deleted ${data.deleted.conversations} conversations`);
-console.log(`Deleted ${data.deleted.agents} agents`);
-```
-
-**Example - cURL:**
+**Example (cURL):**
 ```bash
 curl -X DELETE http://localhost:5000/api/auth/delete-account-data \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-**Notes:**
-- Deletes ALL conversations
-- Deletes ALL custom agents created by user
-- Clears JWT cookie
-- User account remains active
-
----
-
-## 6. Clear Agent Chat
-
-**DELETE** `/api/auth/clear-agent-chat/:agentId`
-
+### `DELETE /api/auth/clear-agent-chat/:agentId`
 Clear chat history with a specific agent.
+- **Auth:** Required (JWT)
 
-**Authentication:** Required (JWT token)
-
-**URL Parameters:**
-- `agentId` (required) - The ID of the agent
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-{
-  "message": "Agent chat history cleared successfully",
-  "deleted": {
-    "conversations": 1
-  }
-}
-```
-
-**Error Responses:**
-- `400` - Agent ID required
-- `401` - Unauthorized
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const agentId = '6985fe9be60fb4c055b51340';
-
-const response = await fetch(`http://localhost:5000/api/auth/clear-agent-chat/${agentId}`, {
-  method: 'DELETE',
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
-
-const data = await response.json();
-console.log(data.message);
+await fetch(`/api/auth/clear-agent-chat/${agentId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
 ```
-
-**Example - cURL:**
-```bash
-curl -X DELETE http://localhost:5000/api/auth/clear-agent-chat/AGENT_ID_HERE \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-**Notes:**
-- Only deletes conversations with specified agent
-- Other agent conversations remain intact
-- User stays logged in
 
 ---
 
-# Agent Routes
+## 2. User Routes (`/api/user`)
 
-Base path: `/api/agents`
+### `GET /api/user/dashboard-stats`
+Get basic statistics for the user dashboard.
+- **Auth:** Required (JWT)
 
-## 1. Get Agents
-
-**GET** `/api/agents`
-
-Get all agents (public agents + user's custom agents).
-
-**Authentication:** Required (JWT token)
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-[
-  {
-    "_id": "6985fe9be60fb4c055b51340",
-    "name": "Friendly Helper",
-    "prompt": "You are a friendly and helpful AI assistant.",
-    "isCustom": false,
-    "createdByType": "user",
-    "createdBy": "6985fe99e60fb4c055b51338",
-    "createdAt": "2026-02-06T14:45:47.149Z",
-    "updatedAt": "2026-02-06T14:45:47.149Z"
-  }
-]
-```
-
-**Error Responses:**
-- `401` - Unauthorized
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const response = await fetch('http://localhost:5000/api/agents', {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
+const response = await fetch('/api/user/dashboard-stats', { headers: { 'Authorization': `Bearer ${token}` } });
+const stats = await response.json();
+```
+
+### `PUT /api/user/profile`
+Update user profile information.
+- **Auth:** Required (JWT)
+- **Body:** `{ fullName, email, dob, interests, personalityTraits }`
+
+**Example (JS Fetch):**
+```javascript
+await fetch('/api/user/profile', {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ fullName: "Jane Doe", interests: ["Coding", "Music"] })
 });
-
-const agents = await response.json();
-console.log(`Found ${agents.length} agents`);
 ```
-
-**Example - cURL:**
-```bash
-curl -X GET http://localhost:5000/api/agents \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-**Notes:**
-- Returns public agents AND agents created by current user
-- Filtered by `isPublic: true` OR `createdBy: userId`
 
 ---
 
-## 2. Create Agent
+## 3. Agent Routes (`/api/agents`)
 
-**POST** `/api/agents`
+### `GET /api/agents`
+Get all agents available to the user (public agents + their custom agents).
+- **Auth:** Required (JWT)
 
+**Example (cURL):**
+```bash
+curl -X GET http://localhost:5000/api/agents -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### `POST /api/agents`
 Create a new custom agent.
+- **Auth:** Required (JWT)
+- **Body:** `{ name, prompt, description, icon, color, etc }`
 
-**Authentication:** Required (JWT token)
-
-**Request Body:**
-```json
-{
-  "name": "My Custom Agent",
-  "prompt": "You are a specialized assistant for coding help."
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "_id": "6985fe9be60fb4c055b51340",
-  "name": "My Custom Agent",
-  "prompt": "You are a specialized assistant for coding help.",
-  "isCustom": false,
-  "createdByType": "user",
-  "createdBy": "6985fe99e60fb4c055b51338",
-  "createdAt": "2026-02-06T14:45:47.149Z",
-  "updatedAt": "2026-02-06T14:45:47.149Z"
-}
-```
-
-**Error Responses:**
-- `400` - Name and prompt required
-- `401` - Unauthorized
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const response = await fetch('http://localhost:5000/api/agents', {
+await fetch('/api/agents', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({
-    name: 'My Custom Agent',
-    prompt: 'You are a specialized assistant for coding help.'
-  })
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ name: "Coding Bot", prompt: "You are a coding assistant" })
 });
-
-const agent = await response.json();
-console.log(`Created agent: ${agent.name}`);
 ```
 
-**Example - cURL:**
+### `POST /api/agents/enhance-prompt`
+Enhance an agent's prompt using the AI.
+- **Auth:** Required (JWT)
+- **Body:** `{ draft }`
+
+**Example (JS Fetch):**
+```javascript
+const res = await fetch('/api/agents/enhance-prompt', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ draft: "make it sound like a pirate" })
+});
+const { enhanced } = await res.json();
+```
+
+### `DELETE /api/agents/:id`
+Delete a custom agent.
+- **Auth:** Required (JWT)
+
+**Example (cURL):**
 ```bash
-curl -X POST http://localhost:5000/api/agents \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "name": "My Custom Agent",
-    "prompt": "You are a specialized assistant for coding help."
-  }'
+curl -X DELETE http://localhost:5000/api/agents/AGENT_ID -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
-**Notes:**
-- `createdBy` automatically set to current user
-- `createdByType` set based on user role (admin/user)
-- Prompt defines agent's personality and behavior
 
 ---
 
-# Chat Routes
+## 4. Chat Routes (`/api/chat`)
 
-Base path: `/api/chat`
-
-## 1. Send Message
-
-**POST** `/api/chat` or **POST** `/api/chat/message`
-
+### `POST /api/chat` or `POST /api/chat/message`
 Send a message to an agent.
+- **Auth:** Required (JWT)
+- **Body:** `{ message, agentId }`
 
-**Authentication:** Required (JWT token)
-
-**Request Body:**
-```json
-{
-  "message": "Hello! How can you help me?",
-  "agentId": "6985fe9be60fb4c055b51340"
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "reply": "Hello! I'm here to help you with any questions or tasks you have. What would you like assistance with today?",
-  "emotion": {
-    "emotion": "neutral",
-    "confidence": 0.5,
-    "intensity": "low",
-    "rawLabel": "neutral"
-  }
-}
-```
-
-**Error Responses:**
-- `400` - Message or Agent ID required
-- `401` - Unauthorized
-- `404` - Agent not found
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const response = await fetch('http://localhost:5000/api/chat', {
+const res = await fetch('/api/chat', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({
-    message: 'Hello! How can you help me?',
-    agentId: '6985fe9be60fb4c055b51340'
-  })
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ message: "Hello there!", agentId: "12345" })
 });
-
-const data = await response.json();
-console.log('AI:', data.reply);
-console.log('Emotion detected:', data.emotion.emotion);
+const data = await res.json();
+console.log(data.reply, data.emotion);
 ```
 
-**Example - cURL:**
+### `GET /api/chat/:agentId`
+Get the conversation history with a specific agent.
+- **Auth:** Required (JWT)
+
+**Example (JS Fetch):**
+```javascript
+const response = await fetch(`/api/chat/${agentId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+const conversation = await response.json();
+```
+
+### `DELETE /api/chat/:agentId`
+Clear the chat history with a specific agent.
+- **Auth:** Required (JWT)
+
+**Example (cURL):**
 ```bash
-curl -X POST http://localhost:5000/api/chat \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "message": "Hello! How can you help me?",
-    "agentId": "AGENT_ID_HERE"
-  }'
+curl -X DELETE http://localhost:5000/api/chat/AGENT_ID -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
-**Example - React Component:**
-```jsx
-function ChatBox({ agentId }) {
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
-  
-  const sendMessage = async () => {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ message, agentId })
-    });
-    
-    const data = await response.json();
-    
-    setMessages([
-      ...messages,
-      { role: 'user', content: message },
-      { role: 'assistant', content: data.reply }
-    ]);
-    
-    setMessage('');
-  };
-  
-  return (
-    <div>
-      <div className="messages">
-        {messages.map((msg, i) => (
-          <div key={i} className={msg.role}>
-            {msg.content}
-          </div>
-        ))}
-      </div>
-      <input 
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type a message..."
-      />
-      <button onClick={sendMessage}>Send</button>
-    </div>
-  );
-}
-```
-
-**Notes:**
-- Creates conversation if doesn't exist
-- Appends messages to existing conversation
-- Detects emotion from user message
-- Returns AI response with emotion data
-- Uses Groq SDK (`llama-3.1-8b-instant`) for responses
 
 ---
 
-# Admin Routes
+## 5. Analytics Routes (`/api/analytics`)
 
-Base path: `/api/admin`
+### `GET /api/analytics`
+Get user analytics (emotion tracking, activity data).
+- **Auth:** Required (JWT)
 
-**Note:** All admin routes require authentication AND admin role.
+**Example (JS Fetch):**
+```javascript
+const res = await fetch('/api/analytics', { headers: { 'Authorization': `Bearer ${token}` } });
+const analytics = await res.json();
+```
 
-## 1. Get All Users
+### `GET /api/analytics/journal`
+Generate an AI-powered wellness journal based on recent interactions.
+- **Auth:** Required (JWT)
 
-**GET** `/api/admin/users`
+**Example (JS Fetch):**
+```javascript
+const res = await fetch('/api/analytics/journal', { headers: { 'Authorization': `Bearer ${token}` } });
+const { journalEntry } = await res.json();
+```
 
+---
+
+## 6. Admin Routes (`/api/admin`)
+*Note: All admin routes require authentication AND the `admin` role.*
+
+### `GET /api/admin/users`
 Get all users in the system.
 
-**Authentication:** Required (JWT token + Admin role)
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-[
-  {
-    "_id": "6985fe99e60fb4c055b51338",
-    "fullName": "John Doe",
-    "email": "john@example.com",
-    "role": "user"
-  },
-  {
-    "_id": "6985fe99e60fb4c055b51339",
-    "fullName": "Jane Smith",
-    "email": "jane@example.com",
-    "role": "admin"
-  }
-]
-```
-
-**Error Responses:**
-- `401` - Unauthorized
-- `403` - Forbidden (not admin)
-- `500` - Internal server error
-
-**Example - JavaScript:**
-```javascript
-const response = await fetch('http://localhost:5000/api/admin/users', {
-  headers: {
-    'Authorization': `Bearer ${adminToken}`
-  }
-});
-
-const users = await response.json();
-console.log(`Total users: ${users.length}`);
-```
-
-**Example - cURL:**
+**Example (cURL):**
 ```bash
-curl -X GET http://localhost:5000/api/admin/users \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+curl -X GET http://localhost:5000/api/admin/users -H "Authorization: Bearer ADMIN_TOKEN"
 ```
 
-**Notes:**
-- Password field excluded from response
-- Only accessible by admin users
+### `PUT /api/admin/users/:id`
+Update a user's role or details.
+- **Body:** `{ fullName, email, role }`
 
----
-
-## 2. Delete User
-
-**DELETE** `/api/admin/users/:id`
-
-Delete a user account.
-
-**Authentication:** Required (JWT token + Admin role)
-
-**URL Parameters:**
-- `id` (required) - The user ID to delete
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-{
-  "message": "User deleted"
-}
-```
-
-**Error Responses:**
-- `401` - Unauthorized
-- `403` - Forbidden (not admin)
-- `404` - User not found
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const userId = '6985fe99e60fb4c055b51338';
-
-const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
-  method: 'DELETE',
-  headers: {
-    'Authorization': `Bearer ${adminToken}`
-  }
+await fetch(`/api/admin/users/${userId}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+  body: JSON.stringify({ role: "admin" })
 });
-
-const data = await response.json();
-console.log(data.message);
 ```
 
-**Example - cURL:**
+### `DELETE /api/admin/users/:id`
+Delete a user account entirely.
+
+**Example (cURL):**
 ```bash
-curl -X DELETE http://localhost:5000/api/admin/users/USER_ID_HERE \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+curl -X DELETE http://localhost:5000/api/admin/users/USER_ID -H "Authorization: Bearer ADMIN_TOKEN"
 ```
 
-**Notes:**
-- Permanently deletes user account
-- Only accessible by admin users
+### `GET /api/admin/agents`
+Get all agents in the system.
 
----
-
-## 3. Get All Agents
-
-**GET** `/api/admin/agents`
-
-Get all agents in the system (admin view).
-
-**Authentication:** Required (JWT token + Admin role)
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-[
-  {
-    "_id": "6985fe9be60fb4c055b51340",
-    "name": "Agent 1",
-    "prompt": "You are agent 1",
-    "isCustom": false,
-    "createdByType": "user",
-    "createdBy": "6985fe99e60fb4c055b51338",
-    "createdAt": "2026-02-06T14:45:47.149Z",
-    "updatedAt": "2026-02-06T14:45:47.149Z"
-  }
-]
-```
-
-**Error Responses:**
-- `401` - Unauthorized
-- `403` - Forbidden (not admin)
-- `500` - Internal server error
-
-**Example - JavaScript:**
+**Example (JS Fetch):**
 ```javascript
-const response = await fetch('http://localhost:5000/api/admin/agents', {
-  headers: {
-    'Authorization': `Bearer ${adminToken}`
-  }
-});
-
-const agents = await response.json();
-console.log(`Total agents: ${agents.length}`);
+const res = await fetch('/api/admin/agents', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+const allAgents = await res.json();
 ```
 
-**Example - cURL:**
+### `POST /api/admin/agents`
+Create a system-level agent (can be set as default).
+- **Body:** `{ name, prompt, description, icon, color, isDefault, isPublic, preferredLength }`
+
+**Example (JS Fetch):**
+```javascript
+await fetch('/api/admin/agents', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+  body: JSON.stringify({ name: "System Bot", prompt: "...", isDefault: true })
+});
+```
+
+### `PUT /api/admin/agents/:id`
+Update an existing agent.
+
+**Example (JS Fetch):**
+```javascript
+await fetch(`/api/admin/agents/${agentId}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+  body: JSON.stringify({ name: "Updated System Bot Name" })
+});
+```
+
+### `DELETE /api/admin/agents/:id`
+Delete any agent from the system.
+
+**Example (cURL):**
 ```bash
-curl -X GET http://localhost:5000/api/admin/agents \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+curl -X DELETE http://localhost:5000/api/admin/agents/AGENT_ID -H "Authorization: Bearer ADMIN_TOKEN"
 ```
 
-**Notes:**
-- Returns ALL agents (no filtering)
-- Only accessible by admin users
+### `GET /api/admin/stats`
+Get platform-wide statistics (total users, conversations, monthly activity).
 
----
-
-# Analytics Routes
-
-Base path: `/api/analytics`
-
-## 1. Get Dashboard Analytics
-
-**GET** `/api/analytics`
-
-Retrieve complete user analytics including message counts, emotion distribution, and agent usage stats over various time periods.
-
-**Authentication:** Required (JWT token)
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-{
-  "summary": { "totalMessages": 150, "dominantEmotion": "happy" },
-  "emotionDistribution": [{ "emotion": "happy", "count": 100 }],
-  "agentUsage": [{ "name": "Empathy AI", "messages": 100 }]
-}
-```
-
----
-
-## 2. Generate Weekly Wellness Journal
-
-**GET** `/api/analytics/journal`
-
-On-demand AI generation of a Weekly Mental Wellness Journal based on the last 7 days of conversation history.
-
-**Authentication:** Required (JWT token)
-
-**Request Body:** None
-
-**Success Response (200):**
-```json
-{
-  "journal": "# 📝 Your Weekly Emotional Journey\n\n## 🌊 The Emotional Landscape\n\n..."
-}
-```
-
-**Error Responses:**
-- `400` - Not enough conversation data in the last 7 days
-- `500` - Failed to complete journal generation
-
----
-
-# Quick Reference
-
-## Authentication Headers
-
-All authenticated endpoints require:
+**Example (JS Fetch):**
 ```javascript
-headers: {
-  'Authorization': `Bearer ${token}`
-}
+const res = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+const stats = await res.json();
 ```
 
-## Content Type
+### `GET /api/admin/conversations`
+Get all conversations across the platform (paginated).
+- **Query:** `?page=1&limit=20`
 
-For POST/PUT requests with body:
+**Example (JS Fetch):**
 ```javascript
-headers: {
-  'Content-Type': 'application/json'
-}
+const res = await fetch('/api/admin/conversations?page=1&limit=10', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+const data = await res.json();
 ```
 
-## Base URLs
+### `POST /api/admin/chat-query`
+Execute a natural language query against the database using the AI database chatbot.
+- **Body:** `{ question }`
 
-**Development:**
-```
-http://localhost:5000
-```
-
-**Production:**
-```
-https://your-domain.com
-```
-
----
-
-## Endpoint Summary Table
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/signup` | No | Create account |
-| POST | `/api/auth/login` | No | Login |
-| POST | `/api/auth/logout` | No | Logout |
-| PUT | `/api/auth/update-profile` | Yes | Update profile pic |
-| DELETE | `/api/auth/delete-account-data` | Yes | Delete all user data |
-| DELETE | `/api/auth/clear-agent-chat/:agentId` | Yes | Clear specific agent chat |
-| GET | `/api/agents` | Yes | Get agents |
-| POST | `/api/agents` | Yes | Create agent |
-| POST | `/api/chat` | Yes | Send message |
-| POST | `/api/chat/message` | Yes | Send message (alt) |
-| GET | `/api/admin/users` | Admin | Get all users |
-| DELETE | `/api/admin/users/:id` | Admin | Delete user |
-| GET | `/api/admin/agents` | Admin | Get all agents |
-| GET | `/api/analytics` | Yes | Get comprehensive dashboard analytics |
-| GET | `/api/analytics/journal` | Yes | Generate Weekly Mental Wellness Journal |
-
----
-
-## Response Status Codes
-
-| Code | Meaning |
-|------|---------|
-| 200 | Success |
-| 201 | Created |
-| 400 | Bad Request (validation error) |
-| 401 | Unauthorized (no/invalid token) |
-| 403 | Forbidden (not admin) |
-| 404 | Not Found |
-| 500 | Internal Server Error |
-
----
-
-## Common Patterns
-
-### Complete Chat Flow
+**Example (JS Fetch):**
 ```javascript
-// 1. Signup
-const signupRes = await fetch('/api/auth/signup', {
+const res = await fetch('/api/admin/chat-query', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    fullName: 'John Doe',
-    email: 'john@example.com',
-    password: 'password123'
-  })
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+  body: JSON.stringify({ question: "How many users registered this week?" })
 });
+const result = await res.json();
+```
 
-// 2. Extract token from cookie or login
-const loginRes = await fetch('/api/auth/login', {
+### `POST /api/admin/enhance-prompt`
+Enhance an agent prompt via AI (admin version).
+- **Body:** `{ draft, agentName }`
+
+**Example (JS Fetch):**
+```javascript
+const res = await fetch('/api/admin/enhance-prompt', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email: 'john@example.com',
-    password: 'password123'
-  })
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+  body: JSON.stringify({ draft: "Be helpful", agentName: "HelperBot" })
 });
-
-const token = 'JWT_TOKEN_HERE';
-
-// 3. Get agents
-const agentsRes = await fetch('/api/agents', {
-  headers: { 'Authorization': `Bearer ${token}` }
-});
-const agents = await agentsRes.json();
-
-// 4. Send message
-const chatRes = await fetch('/api/chat', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({
-    message: 'Hello!',
-    agentId: agents[0]._id
-  })
-});
-
-const chat = await chatRes.json();
-console.log('AI:', chat.reply);
 ```
-
----
-
-## Testing with Postman
-
-### 1. Setup Environment Variables
-```
-base_url: http://localhost:5000
-token: (will be set after login)
-```
-
-### 2. Test Sequence
-
-**a) Signup:**
-- Method: POST
-- URL: `{{base_url}}/api/auth/signup`
-- Body (JSON):
-  ```json
-  {
-    "fullName": "Test User",
-    "email": "test@example.com",
-    "password": "password123"
-  }
-  ```
-
-**b) Login:**
-- Method: POST
-- URL: `{{base_url}}/api/auth/login`
-- Body (JSON):
-  ```json
-  {
-    "email": "test@example.com",
-    "password": "password123"
-  }
-  ```
-- Tests tab: `pm.environment.set("token", pm.response.json().token);`
-
-**c) Create Agent:**
-- Method: POST
-- URL: `{{base_url}}/api/agents`
-- Headers: `Authorization: Bearer {{token}}`
-- Body (JSON):
-  ```json
-  {
-    "name": "Test Agent",
-    "prompt": "You are a test agent."
-  }
-  ```
-
-**d) Send Message:**
-- Method: POST
-- URL: `{{base_url}}/api/chat`
-- Headers: `Authorization: Bearer {{token}}`
-- Body (JSON):
-  ```json
-  {
-    "message": "Hello!",
-    "agentId": "AGENT_ID_FROM_PREVIOUS_STEP"
-  }
-  ```
-
----
-
-## Error Handling Best Practices
-
-```javascript
-async function apiCall(url, options) {
-  try {
-    const response = await fetch(url, options);
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Request failed');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('API Error:', error.message);
-    
-    // Handle specific error cases
-    if (error.message.includes('Unauthorized')) {
-      // Redirect to login
-      window.location.href = '/login';
-    }
-    
-    throw error;
-  }
-}
-
-// Usage
-try {
-  const data = await apiCall('/api/agents', {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-  console.log(data);
-} catch (error) {
-  alert('Failed to load agents');
-}
-```
-
----
-
-## Rate Limiting Recommendations
-
-**Not currently implemented, but recommended:**
-
-```javascript
-// Add to middleware
-import rateLimit from 'express-rate-limit';
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests, please try again later.'
-});
-
-app.use('/api/', limiter);
-```
-
----
-
-## CORS Configuration
-
-**Current:** Allows all origins
-```javascript
-app.use(cors());
-```
-
-**Production recommendation:**
-```javascript
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true
-}));
-```
-
----
-
-## Security Best Practices
-
-1. **Always use HTTPS in production**
-2. **Store JWT in HTTP-only cookies** (already implemented)
-3. **Validate all input** (already implemented)
-4. **Use environment variables for secrets** (already implemented)
-5. **Implement rate limiting** (recommended)
-6. **Add request logging** (partially implemented)
-7. **Regular security audits**
-
----
-
-*Last Updated: February 7, 2026*
-*API Version: 1.0.0*

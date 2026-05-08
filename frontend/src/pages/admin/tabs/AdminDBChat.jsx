@@ -44,8 +44,8 @@ function ResultTable({ data }) {
                 <td key={k} style={{ padding: "6px 10px", color: "#e2e8f0", fontSize: "12px", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {row[k] === null ? <span style={{ color: THEME.muted }}>null</span>
                     : typeof row[k] === "boolean" ? <span style={{ color: row[k] ? THEME.accent : THEME.danger }}>{String(row[k])}</span>
-                    : typeof row[k] === "object" ? <span style={{ color: THEME.muted }}>… object …</span>
-                    : String(row[k])}
+                      : typeof row[k] === "object" ? <span style={{ color: THEME.muted }}>… object …</span>
+                        : String(row[k])}
                 </td>
               ))}
             </tr>
@@ -142,7 +142,7 @@ function ChatBubble({ msg }) {
                     }
                     // Single-row aggregate that only has _id:null + one scalar field (e.g. {total:492,_id:null})
                     if (Array.isArray(r) && r.length === 1) {
-                      const row    = r[0];
+                      const row = r[0];
                       const valKey = Object.keys(row).find(k => k !== "_id" && typeof row[k] === "number");
                       if (valKey) {
                         return (
@@ -153,8 +153,42 @@ function ChatBubble({ msg }) {
                         );
                       }
                     }
-                    // Array of results → table
+                    // Single primitive (string, boolean)
+                    if (typeof r === "string" || typeof r === "boolean") {
+                      if (!msg.generatedQuery && typeof r === "string") {
+                        return (
+                          <p style={{ color: "#e2e8f0", fontSize: "13px", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                            {r}
+                          </p>
+                        );
+                      }
+                      return (
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                          <span style={{ color: THEME.primary, fontSize: "18px", fontWeight: 600 }}>{String(r)}</span>
+                        </div>
+                      );
+                    }
+                    // Array of results
                     if (Array.isArray(r) && r.length > 0) {
+                      // Array of primitives
+                      if (typeof r[0] !== "object") {
+                        return (
+                          <>
+                            <p style={{ color: THEME.muted, fontSize: "12px", marginBottom: "8px" }}>
+                              {msg.content} · <span style={{ color: THEME.primary }}>{r.length} record{r.length !== 1 ? "s" : ""}</span>
+                            </p>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                              {r.map((item, idx) => (
+                                <span key={idx} style={{ padding: "4px 8px", background: THEME.mutedBg, borderRadius: "4px", color: "#e2e8f0", fontSize: "12px", border: `1px solid ${THEME.cardBorder}` }}>
+                                  {String(item)}
+                                </span>
+                              ))}
+                            </div>
+                          </>
+                        );
+                      }
+
+                      // Array of objects
                       return (
                         <>
                           <p style={{ color: THEME.muted, fontSize: "12px", marginBottom: "8px" }}>
@@ -200,10 +234,10 @@ export default function AdminDBChat() {
       timestamp: new Date()
     }
   ]);
-  const [input, setInput]     = useState("");
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [model, setModel]     = useState("llama3.1");
-  const endRef                = useRef(null);
+  const [model, setModel] = useState("llama3.1");
+  const endRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -234,11 +268,11 @@ export default function AdminDBChat() {
         }]);
       } else {
         const count = data.resultCount;
-        const summary = typeof data.result === "number"
+        const summary = data.explanation || (typeof data.result === "number"
           ? `The answer is:`
           : Array.isArray(data.result)
-          ? `Found ${data.result.length} result${data.result.length !== 1 ? "s" : ""}:`
-          : "Here is the result:";
+            ? `Found ${data.result.length} result${data.result.length !== 1 ? "s" : ""}:`
+            : "Here is the result:");
 
         setMessages(prev => [...prev, {
           role: "assistant",

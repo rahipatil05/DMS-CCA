@@ -3,7 +3,7 @@
 
 export async function detectEmotion(text) {
   const lowerText = text.toLowerCase();
-  
+
   // Emotion keywords
   const emotions = {
     happy: ['happy', 'joy', 'excited', 'great', 'awesome', 'wonderful', 'love', 'amazing', 'good', 'glad'],
@@ -13,11 +13,11 @@ export async function detectEmotion(text) {
     anxious: ['anxious', 'worried', 'nervous', 'stressed', 'scared', 'afraid', 'fear'],
     confused: ['confused', 'unsure', 'lost', 'puzzled', 'don\'t understand']
   };
-  
+
   // Count keyword matches
   let maxScore = 0;
   let detectedEmotion = 'neutral';
-  
+
   for (const [emotion, keywords] of Object.entries(emotions)) {
     const score = keywords.filter(keyword => lowerText.includes(keyword)).length;
     if (score > maxScore) {
@@ -25,7 +25,7 @@ export async function detectEmotion(text) {
       detectedEmotion = emotion;
     }
   }
-  
+
   return {
     emotion: detectedEmotion,
     confidence: maxScore > 0 ? 0.8 : 0.5,
