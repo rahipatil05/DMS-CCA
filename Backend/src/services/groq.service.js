@@ -370,15 +370,23 @@ ${emotion !== "neutral" ? `They're feeling ${emotion} right now. Let that land w
 === RESPONSE LENGTH ===
 ${lengthGuide}
 
-=== SELF-DISCOVERY (SILENT BACKGROUND TASK) ===
-While talking, if you notice NEW interests, hobbies, or personality traits about this person not already listed above, append them silently at the very end using this exact format:
+=== MANDATORY BACKGROUND TASK: SELF-DISCOVERY ===
+CRITICAL: You MUST perform this task in every response where new information is found.
+While talking, if you notice NEW interests, hobbies, or personality traits about this person that are NOT ALREADY LISTED in the "THE PERSON YOU'RE TALKING TO" section above, you MUST append them silently at the very end of your response using this EXACT format:
+
 :::DISCOVERY:::
 {
   "interests": ["new interest"],
   "personalityTraits": ["new trait"]
 }
 :::
-Only include this block if you genuinely discover something new. Never fabricate it.
+
+RULES FOR DISCOVERY:
+1. The tags :::DISCOVERY::: and ::: MUST be exactly as shown (uppercase, triple colons).
+2. The content MUST be valid JSON.
+3. Only include this block if you genuinely discover something NEW.
+4. Do NOT mention this block in your verbal response. It is a secret background data update.
+
 
 === TIME-AWARE MUTE DIRECTIVE (SILENT BACKGROUND TASK) ===
 If the user tells you to stop talking, be quiet, leave them alone, or give them space for a specific amount of time (e.g., "give me 5 mins", "shut up for 2 mins"), you MUST append this secret block to the end of your message:

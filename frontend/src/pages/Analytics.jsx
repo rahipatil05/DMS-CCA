@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import {
     MessageSquare, Bot, TrendingUp, Activity, BarChart3,
-    Clock, Calendar, Flame, Smile, Frown, Heart, Zap, Target,
+    Clock, Calendar, Flame, Smile, Frown, Heart, Zap, Target, Brain,
     ArrowLeft, RefreshCw, AlertCircle, Users, Star, Award,
     ChevronUp, ChevronDown, Minus, Info, BookOpen, X, Sparkles, Loader2
 } from "lucide-react";
@@ -37,22 +37,22 @@ const DARK_CURSOR = { fill: 'rgba(56,189,248,0.06)', stroke: 'rgba(56,189,248,0.
 const RADAR_CURSOR = { stroke: 'rgba(56,189,248,0.2)', strokeWidth: 1 };
 
 const EMOTION_COLORS = {
-    happy:    "#34d399",  // emerald
-    neutral:  "#38bdf8",  // sky
-    sad:      "#818cf8",  // indigo
-    anxious:  "#fbbf24",  // amber
-    angry:    "#f87171",  // red
-    lonely:   "#c084fc",  // purple
+    happy: "#34d399",  // emerald
+    neutral: "#38bdf8",  // sky
+    sad: "#818cf8",  // indigo
+    anxious: "#fbbf24",  // amber
+    angry: "#f87171",  // red
+    lonely: "#c084fc",  // purple
     confused: "#67e8f9",  // cyan
 };
 
 const EMOTION_ICONS = {
-    happy:    "😄",
-    neutral:  "😐",
-    sad:      "😔",
-    anxious:  "😰",
-    angry:    "😠",
-    lonely:   "😞",
+    happy: "😄",
+    neutral: "😐",
+    sad: "😔",
+    anxious: "😰",
+    angry: "😠",
+    lonely: "😞",
     confused: "😕",
 };
 
@@ -272,12 +272,12 @@ export default function Analytics() {
             setIsGeneratingJournal(true);
             setShowJournalModal(true);
             setJournalData(null);
-            
+
             const res = await apiFetch("/api/analytics/journal");
-            
+
             const json = await res.json();
             if (!res.ok) throw new Error(json.message || "Failed to generate journal");
-            
+
             setJournalData(json.journal);
         } catch (err) {
             setJournalData(`**Error:** ${err.message}`);
@@ -308,6 +308,7 @@ export default function Analytics() {
         { id: "emotions", label: "Emotions", icon: Heart },
         { id: "activity", label: "Activity", icon: Activity },
         { id: "agents", label: "Agents", icon: Bot },
+        { id: "discovery", label: "Self-Discovery", icon: Sparkles },
     ];
 
     if (loading) return (
@@ -394,7 +395,14 @@ export default function Analytics() {
                     .analytics-wellbeing-grid { grid-template-columns: minmax(0, 1fr) !important; }
                     .analytics-journal-label { display: none; }
                     .analytics-refresh-label { display: none; }
+                    .hidden { display: none !important; }
+                    .sm\:block { display: block !important; }
                 }
+                @media (min-width: 641px) {
+                    .sm\:block { display: block !important; }
+                    .hidden { display: initial !important; }
+                }
+                .animate-spin { animation: spin 1s linear infinite; }
             `}</style>
 
             {/* ── Navigation ──────────────────────────────────────────────────── */}
@@ -496,11 +504,11 @@ export default function Analytics() {
                             <StatCard icon={MessageSquare} label="Total Messages" value={s.totalMessages || 0} sub="All conversations" color={THEME.primary} />
                             <StatCard icon={Activity} label="Conversations" value={s.totalConversations || 0} sub="With all agents" color={THEME.secondary} />
                             <StatCard icon={Bot} label="Agents Used" value={s.totalAgentsUsed || 0} sub="Unique agents" color={THEME.accent} />
-                            <StatCard icon={TrendingUp} label="Avg / Chat" value={s.avgMsgPerConversation || 0} sub="Messages per convo" color={THEME.warning} />
-                            <StatCard icon={Zap} label="Longest Chat" value={s.longestConversation || 0} sub="Messages in one chat" color="#f472b6" />
+                            <StatCard icon={Sparkles} label="Interests Found" value={data.profile?.interests?.length || 0} sub="Discovered organically" color="#fbbf24" />
+                            <StatCard icon={Brain} label="Traits Noticed" value={data.profile?.personalityTraits?.length || 0} sub="Personality profile" color="#a78bfa" />
                             <StatCard icon={Star} label="Dominant Mood" value={EMOTION_ICONS[s.dominantEmotion] + " " + (EMOTION_LABELS[s.dominantEmotion] || "—")} sub="Most frequent emotion" color={EMOTION_COLORS[s.dominantEmotion] || THEME.muted} />
                             <StatCard icon={Users} label="Your Messages" value={s.totalUserMessages || 0} sub="Messages you sent" color="#67e8f9" />
-                            <StatCard icon={Award} label="Avg Msg Length" value={`${s.avgUserMsgLength || 0} ch`} sub="Characters per message" color="#a78bfa" />
+                            <StatCard icon={Award} label="Avg Msg Length" value={`${s.avgUserMsgLength || 0} ch`} sub="Characters per message" color="#f472b6" />
                         </div>
 
                         {/* Monthly Overview + Emotion Pie */}
@@ -928,6 +936,72 @@ export default function Analytics() {
                     </div>
                 )}
 
+                {/* ══ SELF-DISCOVERY TAB ═════════════════════════════════════════ */}
+                {activeTab === "discovery" && (
+                    <div className="anim">
+                        <div className="analytics-grid-2">
+                            <ChartCard title="Your Discovered Interests" subtitle="Topics the AI noticed you enjoy" icon={Sparkles} color="#fbbf24">
+                                {!data.profile?.interests?.length ? (
+                                    <EmptyState message="No interests discovered yet. Try talking about your hobbies!" />
+                                ) : (
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "10px" }}>
+                                        {data.profile?.interests?.map((interest, i) => (
+                                            <div key={i} style={{
+                                                padding: "8px 16px", borderRadius: "12px",
+                                                background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)",
+                                                color: "#fbbf24", fontSize: "13px", fontWeight: 600,
+                                                display: "flex", alignItems: "center", gap: "6px"
+                                            }}>
+                                                <Target size={14} /> {interest}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </ChartCard>
+
+                            <ChartCard title="Personality Traits" subtitle="Behavioral patterns noticed by agents" icon={Brain} color="#a78bfa">
+                                {!data.profile?.personalityTraits?.length ? (
+                                    <EmptyState message="No traits noticed yet. Keep chatting to reveal your persona!" />
+                                ) : (
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "10px" }}>
+                                        {data.profile?.personalityTraits?.map((trait, i) => (
+                                            <div key={i} style={{
+                                                padding: "8px 16px", borderRadius: "12px",
+                                                background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.25)",
+                                                color: "#a78bfa", fontSize: "13px", fontWeight: 600,
+                                                display: "flex", alignItems: "center", gap: "6px"
+                                            }}>
+                                                <Award size={14} /> {trait}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </ChartCard>
+                        </div>
+
+                        <div style={{
+                            marginTop: "14px", background: THEME.card,
+                            border: `1px solid ${THEME.cardBorder}`, borderRadius: "16px", padding: "24px",
+                            textAlign: "center"
+                        }}>
+                            <div style={{
+                                width: "48px", height: "48px", borderRadius: "14px",
+                                background: `${THEME.primary}18`, border: `1px solid ${THEME.primary}33`,
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                margin: "0 auto 16px"
+                            }}>
+                                <Info size={24} color={THEME.primary} />
+                            </div>
+                            <h3 style={{ color: "#e2e8f0", fontSize: "18px", fontWeight: 700, marginBottom: "8px" }}>How Self-Discovery Works</h3>
+                            <p style={{ color: THEME.muted, fontSize: "14px", maxWidth: "600px", margin: "0 auto", lineHeight: "1.6" }}>
+                                As you chat with your AI agents, they organically notice your hobbies, values, and personality traits.
+                                Instead of filling out a form, your profile evolves naturally through conversation.
+                                These traits help agents tailor their responses and offer deeper, more personalized insights in your Weekly Journal.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
             </main>
 
             {/* ── Journal Modal Overlay ────────────────────────────────────────── */}
@@ -956,7 +1030,7 @@ export default function Analytics() {
                                     background: `${THEME.accent}18`, border: `1px solid ${THEME.accent}30`,
                                     display: "flex", alignItems: "center", justifyContent: "center"
                                 }}>
-                                    {isGeneratingJournal ? <Loader2 size={16} className="animate-spin text-emerald-400" /> : <Sparkles size={16} color={THEME.accent} />}
+                                    {isGeneratingJournal ? <Loader2 size={16} style={{ color: THEME.accent }} className="animate-spin" /> : <Sparkles size={16} color={THEME.accent} />}
                                 </div>
                                 <div>
                                     <h3 style={{ color: "#f1f5f9", fontSize: "15px", fontWeight: 700 }}>Your Weekly Reflection</h3>
@@ -968,7 +1042,7 @@ export default function Analytics() {
                                 padding: "4px", display: "flex", alignItems: "center", justifyContent: "center",
                                 borderRadius: "6px"
                             }} onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
-                               onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                                onMouseLeave={e => e.currentTarget.style.background = "none"}>
                                 <X size={18} />
                             </button>
                         </div>

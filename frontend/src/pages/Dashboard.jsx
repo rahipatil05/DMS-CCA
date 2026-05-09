@@ -296,7 +296,7 @@ export default function Dashboard() {
                         </div>
                     )}
                     <div className="flex items-center gap-2 mb-2">
-                        <h2 className="text-2xl sm:text-4xl font-bold">Welcome back, {userName}! 👋</h2>
+                        <h2 className="text-2xl sm:text-4xl font-bold">Welcome, {userName}! 👋</h2>
                     </div>
                     <p className="text-gray-400 text-sm sm:text-lg">Ready to continue your AI journey today?</p>
                 </div>

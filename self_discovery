@@ -1,0 +1,79 @@
+# 🧠 Self-Discovery Engine: Testing & Inputs
+
+The Self-Discovery Engine has been optimized. It now reliably extracts user traits and interests even when using the highly conversational "Texting Realism" mode.
+
+## 🧪 How to Test
+1.  Open the **Chat** page.
+2.  Select any agent (e.g., **Empathy AI**).
+3.  Send one of the **Test Inputs** below.
+4.  Wait for the AI response.
+5.  You should see a **toast notification** saying *"Self-Discovery Found!"*.
+6.  Click **Accept** to add the trait/interest to your profile permanently.
+
+---
+
+## 📥 High-Probability Test Inputs
+*Use these to verify the engine is working.*
+
+### 1. The Hobby Hook (Interests)
+> "I just spent four hours in my garage trying to fix an old **film camera** I found. I’m exhausted but it was so worth it."
+*   **Expected Discovery:** `analog photography`, `camera repair`
+
+> "Honestly, nothing beats a quiet night of **baking sourdough** and listening to **jazz vinyls**. It’s my happy place."
+*   **Expected Discovery:** `baking`, `jazz music`
+
+### 2. The Identity Hook (Personality Traits)
+> "I'm such a **perfectionist** that I ended up rewriting the same paragraph ten times today. It’s a blessing and a curse."
+*   **Expected Discovery:** `perfectionist`
+
+> "I tend to be an **overthinker**, so I’ve been worrying about that tiny comment my boss made three days ago."
+*   **Expected Discovery:** `overthinker`
+
+### 3. The Deep Insight Hook (Both)
+> "I’ve always been **extremely competitive**, which is probably why I spend so much time grinding in **ranked Valorant** every night."
+*   **Expected Discovery:** `competitive` (trait), `Valorant` (interest)
+
+---
+
+## 🛠️ Fixes Applied
+- **Prompt Elevation:** Moved the Self-Discovery instruction higher in the system prompt to prevent the LLM from "forgetting" it.
+- **Enforcement:** Added `CRITICAL` and `MANDATORY` markers to the background task.
+- **Tag Normalization:** Explicitly instructed the LLM to keep the `:::DISCOVERY:::` tag in uppercase to ensure the Backend regex always catches it.
+
+
+
+
+I've curated a list of varied inputs designed to trigger the **Self-Discovery Engine**. These are categorized by the type of discovery they usually provoke. 
+
+### **1. Interest-Based Hooks (Hobbies & Passions)**
+*   "I've actually been spending a lot of time learning **Python** lately because I want to build my own automation tools."
+*   "I just got back from a **hiking** trip in the mountains; there's something so refreshing about being completely off the grid."
+*   "I'm obsessed with **vintage mechanical watches**. I just bought a 1970s Seiko and I'm trying to restore it myself."
+*   "I've been practicing **latte art** every morning, but I still can't get the heart shape right!"
+
+### **2. Personality-Based Hooks (Traits & Values)**
+*   "I'm the kind of person who needs to have everything **planned out** weeks in advance, or I start getting anxious."
+*   "I've always been a bit of an **introvert**, so large parties usually just drain my battery completely."
+*   "I really value **honesty** above everything else; if someone isn't straightforward with me, I find it hard to trust them."
+*   "I'm definitely a **night owl**. My brain doesn't actually start working until after 11 PM."
+
+### **3. Deep-Insight Hooks (Life Outlook)**
+*   "I'm trying to be more **minimalist** lately. I realized I have so much stuff that I just don't need or use."
+*   "I've always felt a strong sense of **empathy** for others, sometimes to the point where I take on their stress as my own."
+*   "I'm really into **stoicism** recently. It's helping me stay calm when things at work get chaotic."
+
+### **How to verify it triggered:**
+1.  Send one of these messages to an agent.
+2.  The AI will respond naturally.
+3.  **Wait 1-2 seconds** after the message appears; if a discovery is found, a **toast notification** will pop up at the top of the screen.
+4.  Go to the **Analytics** page and check the **"Self-Discovery"** tab to see your evolving profile.
+
+> [!TIP]
+> The engine is more likely to trigger if you talk about something **new** that you haven't mentioned in previous chats!
+
+
+
+
+
+
+I'm the kind of person who needs to have everything **planned out** weeks in advance, or I start getting anxious

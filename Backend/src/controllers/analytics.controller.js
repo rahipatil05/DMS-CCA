@@ -231,7 +231,11 @@ export const getUserAnalytics = async (req, res) => {
             emotionByAgent,
             monthlyOverview,
             emotionHeatmap,
-            recentConversations
+            recentConversations,
+            profile: {
+                interests: Array.from(new Set((req.user.interests || []).map(i => i.trim().toLowerCase()))),
+                personalityTraits: Array.from(new Set((req.user.personalityTraits || []).map(t => t.trim().toLowerCase())))
+            }
         });
     } catch (error) {
         console.error("Analytics error:", error);
