@@ -43,37 +43,74 @@ The Self-Discovery Engine has been optimized. It now reliably extracts user trai
 
 
 
-I've curated a list of varied inputs designed to trigger the **Self-Discovery Engine**. These are categorized by the type of discovery they usually provoke. 
+## 📁 Categorized Discovery Prompts
 
-### **1. Interest-Based Hooks (Hobbies & Passions)**
-*   "I've actually been spending a lot of time learning **Python** lately because I want to build my own automation tools."
-*   "I just got back from a **hiking** trip in the mountains; there's something so refreshing about being completely off the grid."
-*   "I'm obsessed with **vintage mechanical watches**. I just bought a 1970s Seiko and I'm trying to restore it myself."
-*   "I've been practicing **latte art** every morning, but I still can't get the heart shape right!"
+Use the following expanded registry of prompts to test different facets of the **Self-Discovery Engine**. These are designed to trigger high-probability extractions across various domains.
 
-### **2. Personality-Based Hooks (Traits & Values)**
-*   "I'm the kind of person who needs to have everything **planned out** weeks in advance, or I start getting anxious."
-*   "I've always been a bit of an **introvert**, so large parties usually just drain my battery completely."
-*   "I really value **honesty** above everything else; if someone isn't straightforward with me, I find it hard to trust them."
-*   "I'm definitely a **night owl**. My brain doesn't actually start working until after 11 PM."
+### 🎮 Interests, Hobbies, & Skills
+These inputs aim to discover the user's specific passions, projects, or learning goals:
 
-### **3. Deep-Insight Hooks (Life Outlook)**
-*   "I'm trying to be more **minimalist** lately. I realized I have so much stuff that I just don't need or use."
-*   "I've always felt a strong sense of **empathy** for others, sometimes to the point where I take on their stress as my own."
-*   "I'm really into **stoicism** recently. It's helping me stay calm when things at work get chaotic."
+*   **Programming & Automation:**
+    > "I've actually been spending a lot of time learning **Python** lately because I want to build my own automation tools."
+    *   *Expected Discovery:* `Python`, `automation`
+*   **Outdoor Activities:**
+    > "I just got back from a **hiking** trip in the mountains; there's something so refreshing about being completely off the grid."
+    *   *Expected Discovery:* `hiking`, `nature`
+*   **Niche Crafts & Repair:**
+    > "I'm obsessed with **vintage mechanical watches**. I just bought a 1970s Seiko and I'm trying to restore it myself."
+    *   *Expected Discovery:* `watch restoration`, `vintage watches`
+*   **Culinary Arts:**
+    > "I've been practicing **latte art** every morning, but I still can't get the heart shape right!"
+    *   *Expected Discovery:* `latte art`, `coffee`
+*   **Creative Arts:**
+    > "I've been trying to teach myself **watercolor painting** recently, but getting the blending right is so frustrating."
+    *   *Expected Discovery:* `watercolor painting`, `art`
+*   **Tech & Engineering:**
+    > "I'm currently trying to learn **3D modeling in Blender** to make game assets, but the interface is super intimidating."
+    *   *Expected Discovery:* `3D modeling`, `Blender`
 
-### **How to verify it triggered:**
-1.  Send one of these messages to an agent.
-2.  The AI will respond naturally.
-3.  **Wait 1-2 seconds** after the message appears; if a discovery is found, a **toast notification** will pop up at the top of the screen.
-4.  Go to the **Analytics** page and check the **"Self-Discovery"** tab to see your evolving profile.
+### 👤 Personality Traits & Work Styles
+These inputs test the engine's ability to extract behavioral traits, emotional patterns, or professional habits:
+
+*   **Social Energy:**
+    > "I've always been a bit of an **introvert**, so large parties usually just drain my battery completely."
+    *   *Expected Discovery:* `introvert`
+*   **Social Adaptability:**
+    > "I'm very much a **social chameleon**—I tend to adapt my energy level to match whoever I'm talking to."
+    *   *Expected Discovery:* `social chameleon` or `adaptable`
+*   **Stress & Focus:**
+    > "I'm a huge **procrastinator** when it comes to daily chores, but when I'm working on a coding project, I get completely laser-focused."
+    *   *Expected Discovery:* `procrastinator` or `laser-focused`
+*   **Attention to Detail:**
+    > "I am extremely **detail-oriented**, sometimes to a fault where I spend hours formatting a document that nobody else will notice."
+    *   *Expected Discovery:* `detail-oriented` or `perfectionist`
+*   **Energy Cycles:**
+    > "I've always been a **night owl**; my brain doesn't actually start firing on all cylinders until after 11 PM."
+    *   *Expected Discovery:* `night owl`
+
+### 🧭 Core Values & Mindsets
+These inputs test deep-insight extraction relating to life philosophy, ethics, or personal beliefs:
+
+*   **Personal Philosophy:**
+    > "I've been reading about **stoicism** lately to help me stay calm and grounded when things at work get chaotic."
+    *   *Expected Discovery:* `stoicism` or `stoic`
+*   **Relationships & Trust:**
+    > "I really value **honesty** above everything else; if someone isn't straightforward with me, I find it hard to trust them."
+    *   *Expected Discovery:* `honesty` or `trust`
+*   **Lifestyle Choices:**
+    > "I'm trying to embrace a **minimalist lifestyle**—decluttering my room has actually cleared up a lot of mental space too."
+    *   *Expected Discovery:* `minimalist` or `minimalism`
+*   **Empathy:**
+    > "I've always felt a strong sense of **empathy** for others, sometimes to the point where I take on their stress as my own."
+    *   *Expected Discovery:* `empathic` or `empathy`
+
+---
+
+## 📈 Verification Checklist & Tips
+
+1.  **Avoid Duplication:** The Self-Discovery engine is smart; if the profile already has a trait/interest (e.g., if `watercolor painting` is already listed under interests), the LLM will *not* extract it again. Check your profile before testing.
+2.  **Monitor the Response:** Look at the raw API response (or check the frontend network tab) to ensure the `:::DISCOVERY:::` block is correctly appended to the LLM response and is successfully removed by regex before showing to the user.
+3.  **UI Feedback:** When a discovery is successfully parsed, a toast notification with the discovered traits/interests will prompt you to **Accept** or **Reject** them. Once accepted, they are immediately persisted to the user profile database.
 
 > [!TIP]
 > The engine is more likely to trigger if you talk about something **new** that you haven't mentioned in previous chats!
-
-
-
-
-
-
-I'm the kind of person who needs to have everything **planned out** weeks in advance, or I start getting anxious

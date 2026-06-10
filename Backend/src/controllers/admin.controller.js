@@ -339,42 +339,179 @@ export const getAllConversations = async (req, res) => {
   }
 };
 
-// ── New: AI DB Chatbot ───────────────────────────────────────────────────────
+// ── New: AI DB Chatbot (Upgraded — Multi-turn, Summarized, Self-Healing) ────
 
 const SCHEMA_CONTEXT = `
-You are an expert MongoDB/Mongoose query assistant AND a knowledgeable guide for the "Multi Personalized AI Agent Platform" (DMSM CCA).
+You are an expert MongoDB/Mongoose query generator for the "Multi Personalized AI Agent Platform" (DMSM CCA).
+Your job is to convert natural-language admin questions into precise Mongoose queries.
 
-The database has 3 collections:
-1. users (Mongoose model: User)
-   Fields: _id, fullName, email, role ("user"|"admin"), dob, interests, personalityTraits, createdAt, updatedAt
-2. agents (Mongoose model: Agent)
-   Fields: _id, name, description, prompt, icon, color, isDefault, isCustom, isPublic, createdByType, createdBy, preferredLength, createdAt, updatedAt
-3. conversations (Mongoose model: Conversation)
-   Fields: _id, userId, agentId, messages ([{ role, content, emotion, createdAt }]), createdAt, updatedAt
+═══════════════════════════════════════════
+DATABASE SCHEMA (3 collections)
+═══════════════════════════════════════════
 
-RULES:
-- You must always respond with a valid JSON object matching exactly this schema:
-  {
-    "message": "Your conversational response explaining the data or answering the project question.",
-    "query": "The JS query expression if a database check is needed, or null if no query is needed."
-  }
-- The "message" should be a helpful, conversational response. If answering a general project question, explain it fully.
-- If a database query is needed, "query" must be a single JS expression evaluating directly to a Promise (e.g., User.countDocuments()). No async/await, no .then(). Always use .lean() for find().
-- Never modify or delete data.
+1. users (Model: User)
+   ┌──────────────────┬──────────────────────────────────────────────────┐
+   │ Field            │ Type & Notes                                     │
+   ├──────────────────┼──────────────────────────────────────────────────┤
+   │ _id              │ ObjectId (auto, encodes creation timestamp)      │
+   │ fullName         │ String                                           │
+   │ email            │ String (unique)                                  │
+   │ password         │ String (NEVER select this)                       │
+   │ role             │ String, enum: "user" | "admin"                   │
+   │ dob              │ String (date of birth)                           │
+   │ interests        │ [String] — discovered hobbies/passions           │
+   │ personalityTraits│ [String] — discovered traits (e.g. "introvert") │
+   └──────────────────┴──────────────────────────────────────────────────┘
+   Note: No createdAt/updatedAt timestamps. Use _id for time-based queries:
+     mongoose.Types.ObjectId.createFromTime(dateInSeconds)
 
-EXAMPLES:
+2. agents (Model: Agent)
+   ┌──────────────────┬──────────────────────────────────────────────────┐
+   │ Field            │ Type & Notes                                     │
+   ├──────────────────┼──────────────────────────────────────────────────┤
+   │ _id              │ ObjectId (auto)                                  │
+   │ name             │ String (required) — agent display name           │
+   │ description      │ String                                           │
+   │ prompt           │ String (required) — system prompt                │
+   │ icon             │ String (default "Bot") — lucide icon name        │
+   │ color            │ String — gradient class                          │
+   │ isDefault        │ Boolean — system-provided agent                  │
+   │ isCustom         │ Boolean — user-created agent                     │
+   │ isPublic         │ Boolean — visible to all users                   │
+   │ createdByType    │ String, enum: "admin" | "user"                   │
+   │ createdBy        │ ObjectId ref → User                              │
+   │ preferredLength  │ String, enum: "small" | "medium" | "long"        │
+   │ createdAt        │ Date (auto via timestamps)                       │
+   │ updatedAt        │ Date (auto via timestamps)                       │
+   └──────────────────┴──────────────────────────────────────────────────┘
 
-Q: How many users are there?
-A: {"message": "There are currently this many users registered on the platform:", "query": "User.countDocuments()"}
+3. conversations (Model: Conversation)
+   ┌──────────────────┬──────────────────────────────────────────────────┐
+   │ Field            │ Type & Notes                                     │
+   ├──────────────────┼──────────────────────────────────────────────────┤
+   │ _id              │ ObjectId (auto)                                  │
+   │ userId           │ ObjectId ref → User                              │
+   │ agentId          │ ObjectId ref → Agent                             │
+   │ messages         │ Array of sub-documents:                          │
+   │                  │   { role: "user"|"assistant",                    │
+   │                  │     content: String,                             │
+   │                  │     emotion: enum ["happy","sad","lonely",       │
+   │                  │       "angry","anxious","confused","neutral"],   │
+   │                  │     createdAt: Date }                            │
+   │ mutedUntil       │ Date | null                                      │
+   │ createdAt        │ Date (auto via timestamps)                       │
+   │ updatedAt        │ Date (auto via timestamps)                       │
+   └──────────────────┴──────────────────────────────────────────────────┘
 
-Q: Show me all admin users
-A: {"message": "Here is a list of all administrators with their full details.", "query": "User.find({ role: 'admin' }).select('-password').lean()"}
+═══════════════════════════════════════════
+RELATIONSHIPS
+═══════════════════════════════════════════
+- Conversation.userId → User._id
+- Conversation.agentId → Agent._id
+- Agent.createdBy → User._id
+- Use $lookup for joins: { from: "users", localField: "userId", foreignField: "_id", as: "user" }
+
+═══════════════════════════════════════════
+RESPONSE FORMAT (STRICT)
+═══════════════════════════════════════════
+Always respond with ONLY a valid JSON object:
+{
+  "message": "Brief explanation of what data you're fetching.",
+  "query": "Single JS expression returning a Promise — or null if no DB query needed."
+}
+
+QUERY RULES:
+- Must be a single JS expression evaluating to a Promise (e.g. User.countDocuments()).
+- NO async/await, NO .then(), NO variable declarations, NO semicolons.
+- Always use .lean() after .find() or .findOne().
+- Always use .select('-password') when querying Users.
+- NEVER use destructive operations (delete, update, create, save, drop).
+- For User time-based queries, use: mongoose.Types.ObjectId.createFromTime(Math.floor(new Date("YYYY-MM-DD").getTime()/1000))
+- For Conversation/Agent time-based queries, use the createdAt field directly.
+- mongoose is available as a global variable.
+
+═══════════════════════════════════════════
+QUERY EXAMPLES (study these patterns)
+═══════════════════════════════════════════
+
+Q: How many users are registered?
+A: {"message": "Total registered users:", "query": "User.countDocuments()"}
+
+Q: Show all admin users
+A: {"message": "All administrator accounts:", "query": "User.find({ role: 'admin' }).select('-password').lean()"}
+
+Q: Which agent is most popular?
+A: {"message": "Agent ranked by total messages received:", "query": "Conversation.aggregate([{ $group: { _id: '$agentId', totalMessages: { $sum: { $size: '$messages' } } } }, { $sort: { totalMessages: -1 } }, { $limit: 5 }, { $lookup: { from: 'agents', localField: '_id', foreignField: '_id', as: 'agent' } }, { $unwind: '$agent' }, { $project: { name: '$agent.name', totalMessages: 1 } }])"}
+
+Q: Top 5 most active users by message count
+A: {"message": "Most active users by message volume:", "query": "Conversation.aggregate([{ $group: { _id: '$userId', totalMessages: { $sum: { $size: '$messages' } } } }, { $sort: { totalMessages: -1 } }, { $limit: 5 }, { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'user' } }, { $unwind: '$user' }, { $project: { fullName: '$user.fullName', email: '$user.email', totalMessages: 1 } }])"}
+
+Q: Emotion distribution across all messages
+A: {"message": "Breakdown of emotions detected in messages:", "query": "Conversation.aggregate([{ $unwind: '$messages' }, { $group: { _id: '$messages.emotion', count: { $sum: 1 } } }, { $sort: { count: -1 } }])"}
+
+Q: How many conversations happened today?
+A: {"message": "Conversations created today:", "query": "Conversation.countDocuments({ createdAt: { $gte: new Date(new Date().setHours(0,0,0,0)) } })"}
+
+Q: Messages sent in the last 7 days
+A: {"message": "Message volume over the past week:", "query": "Conversation.aggregate([{ $unwind: '$messages' }, { $match: { 'messages.createdAt': { $gte: new Date(Date.now() - 7*24*60*60*1000) } } }, { $count: 'totalMessages' }])"}
+
+Q: Show all custom agents created by users
+A: {"message": "User-created custom agents:", "query": "Agent.find({ isCustom: true }).populate('createdBy', 'fullName email').lean()"}
+
+Q: Average messages per conversation
+A: {"message": "Average message count per conversation:", "query": "Conversation.aggregate([{ $project: { msgCount: { $size: '$messages' } } }, { $group: { _id: null, avgMessages: { $avg: '$msgCount' } } }])"}
+
+Q: Users who have the interest "hiking"
+A: {"message": "Users interested in hiking:", "query": "User.find({ interests: 'hiking' }).select('-password').lean()"}
+
+Q: Show me users with personality trait "introvert"
+A: {"message": "Users with introvert trait:", "query": "User.find({ personalityTraits: 'introvert' }).select('-password').lean()"}
+
+Q: Daily message count for the last 30 days
+A: {"message": "Daily message volume (last 30 days):", "query": "Conversation.aggregate([{ $unwind: '$messages' }, { $match: { 'messages.createdAt': { $gte: new Date(Date.now() - 30*24*60*60*1000) } } }, { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$messages.createdAt' } }, count: { $sum: 1 } } }, { $sort: { _id: 1 } }])"}
+
+Q: Which users have never chatted?
+A: {"message": "Users with zero conversations:", "query": "User.aggregate([{ $lookup: { from: 'conversations', localField: '_id', foreignField: 'userId', as: 'convos' } }, { $match: { convos: { $size: 0 } } }, { $project: { fullName: 1, email: 1, role: 1 } }])"}
+
+Q: Default agents vs custom agents count
+A: {"message": "Breakdown of default vs custom agents:", "query": "Agent.aggregate([{ $group: { _id: { isDefault: '$isDefault', isCustom: '$isCustom' }, count: { $sum: 1 } } }])"}
 
 Q: What is this project?
-A: {"message": "The DMSM CCA (Multi Personalized AI Agent Platform) is a privacy-first AI companion platform featuring local-only inference and autonomous self-discovery for dynamic AI personas.", "query": null}
+A: {"message": "DMSM CCA is a Multi Personalized AI Agent Platform — a privacy-first AI companion system featuring local inference via Ollama/Groq, persistent personal behavioral prompts, and an autonomous Self-Discovery engine that evolves the AI persona based on user interactions. It's built with React + Node.js + MongoDB + Groq LLM.", "query": null}
 
-Now answer this question (Return ONLY valid JSON):
+Now answer the following question (Return ONLY valid JSON):
 `;
+
+const SUMMARIZE_PROMPT = `You are a data analyst assistant. The admin asked a question and received raw database results. Your job is to provide a clear, well-structured summary.
+
+RULES:
+- Be concise but informative
+- Use bullet points for lists
+- Highlight key numbers and insights
+- If the data is a single number, state it clearly with context
+- If the data is a table/list, summarize the key takeaways and patterns
+- If the result is empty, say so clearly
+- Use plain text, no markdown headers
+- Keep it under 150 words
+- Be conversational and professional
+
+Admin's question: "{question}"
+Generated query: {query}
+Raw result: {result}
+
+Provide a clear summary:`;
+
+const RETRY_PROMPT = `The previous Mongoose query you generated FAILED with this error:
+Error: {error}
+Failed query: {failedQuery}
+
+Original question: "{question}"
+
+Please generate a CORRECTED query. Fix the syntax or logic error. Return ONLY valid JSON in the same format:
+{
+  "message": "Brief explanation",
+  "query": "Corrected single JS expression"
+}`;
 
 const DESTRUCTIVE = [
   "deleteMany", "deleteOne", "findByIdAndDelete", "findOneAndDelete",
@@ -386,19 +523,76 @@ const DESTRUCTIVE = [
 const isDestructiveQuery = (code) =>
   DESTRUCTIVE.some(op => new RegExp(`\\.${op}\\s*\\(`).test(code));
 
+// Helper: clean code fences and extract the last meaningful line
+const cleanQueryCode = (raw) => {
+  let code = raw.replace(/```[\w]*\n?/g, "").replace(/```/g, "").trim();
+  const lines = code.split("\n").filter(l => l.trim());
+  return lines[lines.length - 1] || code;
+};
+
+// Helper: execute a Mongoose query string in a sandboxed context
+const executeQuery = async (queryCode) => {
+  const queryFn = new Function("User", "Agent", "Conversation", "mongoose", `return (${queryCode})`);
+  const promise = queryFn(User, Agent, Conversation, mongoose);
+  return await promise;
+};
+
+// Helper: ask Groq to summarize raw results
+const summarizeResult = async (question, queryCode, rawResult) => {
+  try {
+    const resultPreview = JSON.stringify(rawResult).slice(0, 2000); // Cap at 2000 chars to stay within token limits
+    const prompt = SUMMARIZE_PROMPT
+      .replace("{question}", question)
+      .replace("{query}", queryCode || "N/A")
+      .replace("{result}", resultPreview);
+
+    const response = await groqClient.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      max_tokens: 400
+    });
+    return (response.choices[0]?.message?.content || "").trim();
+  } catch {
+    return null; // Summarization failure is non-fatal
+  }
+};
+
 export const adminChatQuery = async (req, res) => {
   try {
-    const { question } = req.body;
+    const { question, history } = req.body;
     if (!question?.trim()) return res.status(400).json({ message: "Question is required" });
 
-    // 1. Ask Groq to generate a JSON response
+    // ── 1. Build multi-turn message array for Groq ──
+    const llmMessages = [{ role: "system", content: SCHEMA_CONTEXT }];
+
+    // Inject conversation history (last 10 messages max) for follow-up context
+    if (Array.isArray(history)) {
+      const recentHistory = history.slice(-10);
+      for (const h of recentHistory) {
+        if (h.role === "user") {
+          llmMessages.push({ role: "user", content: h.content });
+        } else if (h.role === "assistant" && h.generatedQuery) {
+          // Give the LLM context about what query it generated previously
+          llmMessages.push({
+            role: "assistant",
+            content: JSON.stringify({ message: h.content, query: h.generatedQuery })
+          });
+        }
+      }
+    }
+
+    // Add the current question
+    llmMessages.push({ role: "user", content: question });
+
+    // ── 2. Ask Groq to generate query ──
     let parsedResponse = { message: "", query: null };
     try {
       const response = await groqClient.chat.completions.create({
         model: GROQ_MODEL,
-        messages: [{ role: "user", content: SCHEMA_CONTEXT + question }],
+        messages: llmMessages,
         temperature: 0.1,
-        max_tokens: 500,
+        max_tokens: 800,
         response_format: { type: "json_object" }
       });
       const generatedString = (response.choices[0]?.message?.content || "").trim();
@@ -413,24 +607,22 @@ export const adminChatQuery = async (req, res) => {
     let textResponse = parsedResponse.message || "Here is the result:";
     let queryCode = parsedResponse.query;
 
-    // If there is no QUERY, just return the TEXT
+    // ── 3. No query needed — return text-only response ──
     if (!queryCode) {
       return res.json({
         question,
         generatedQuery: null,
         explanation: textResponse,
+        summary: textResponse,
         result: textResponse,
         resultCount: null,
         timestamp: new Date()
       });
     }
 
-    // 3. Strip markdown code fences if present from the query
-    queryCode = queryCode.replace(/\`\`\`[\w]*\n?/g, "").replace(/\`\`\`/g, "").trim();
-    const lines = queryCode.split("\n").filter(l => l.trim());
-    queryCode = lines[lines.length - 1] || queryCode;
+    // ── 4. Clean and validate query ──
+    queryCode = cleanQueryCode(queryCode);
 
-    // 4. Safety check — block destructive operations
     if (isDestructiveQuery(queryCode)) {
       return res.status(403).json({
         message: "⛔ Destructive query blocked. The generated query contains a write/delete operation.",
@@ -438,30 +630,59 @@ export const adminChatQuery = async (req, res) => {
       });
     }
 
-    // 5. Execute the query in a limited context
+    // ── 5. Execute query (with one retry on failure) ──
     let result;
+    let finalQueryCode = queryCode;
     try {
-      const queryFn = new Function("User", "Agent", "Conversation", `return (${queryCode})`);
-      const promise = queryFn(User, Agent, Conversation);
-      result = await promise;
+      result = await executeQuery(queryCode);
     } catch (execErr) {
-      // Fallback: if execution fails
-      return res.status(422).json({
-        message: "Failed to execute generated query",
-        generatedQuery: queryCode,
-        error: execErr.message
-      });
+      // Self-healing retry: tell the LLM about the error and ask for a corrected query
+      try {
+        const retryPrompt = RETRY_PROMPT
+          .replace("{error}", execErr.message)
+          .replace("{failedQuery}", queryCode)
+          .replace("{question}", question);
+
+        const retryResponse = await groqClient.chat.completions.create({
+          model: GROQ_MODEL,
+          messages: [{ role: "user", content: SCHEMA_CONTEXT + "\n" + retryPrompt }],
+          temperature: 0.1,
+          max_tokens: 800,
+          response_format: { type: "json_object" }
+        });
+
+        const retryParsed = JSON.parse((retryResponse.choices[0]?.message?.content || "").trim());
+        if (retryParsed.query) {
+          finalQueryCode = cleanQueryCode(retryParsed.query);
+          if (!isDestructiveQuery(finalQueryCode)) {
+            result = await executeQuery(finalQueryCode);
+            textResponse = retryParsed.message || textResponse;
+          }
+        }
+      } catch {
+        // Both attempts failed
+        return res.status(422).json({
+          message: "Failed to execute generated query (retry also failed)",
+          generatedQuery: queryCode,
+          error: execErr.message
+        });
+      }
     }
 
-    // 5. Normalise result: wrap single objects into an array so the frontend table works
+    // ── 6. Normalize result ──
     if (result !== null && typeof result === "object" && !Array.isArray(result)) {
       result = [result];
     }
 
+    // ── 7. Summarize result with a second LLM pass ──
+    const summary = await summarizeResult(question, finalQueryCode, result);
+
+    // ── 8. Send response ──
     res.json({
       question,
-      generatedQuery: queryCode,
+      generatedQuery: finalQueryCode,
       explanation: textResponse || null,
+      summary: summary || textResponse || null,
       result,
       resultCount: Array.isArray(result) ? result.length : typeof result === "number" ? result : null,
       timestamp: new Date()
